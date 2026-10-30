@@ -1,0 +1,9 @@
+<Project>
+	<PropertyGroup>
+		<TargetFrameworkVersion>net10.0</TargetFrameworkVersion>
+		<MicrosoftExtensionsConfigurationVersion>10.0.5</MicrosoftExtensionsConfigurationVersion>
+		<MicrosoftExtensionsConfigurationJsonVersion>10.0.5</MicrosoftExtensionsConfigurationJsonVersion>
+		<MicrosoftExtensionsLoggingAbstractionsVersion>10.0.5</MicrosoftExtensionsLoggingAbstractionsVersion>
+		<MicrosoftEntityFrameworkCoreVersion>10.0.5</MicrosoftEntityFrameworkCoreVersion>
+	</PropertyGroup>
+</Project>
