@@ -6,6 +6,7 @@ using TalkApp.Data;
 var config = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("appsettings.json", optional: false)
+    .AddUserSecrets<Program>(optional: true)
     .Build();
 
 var options = new DbContextOptionsBuilder<TalkDbContext>()

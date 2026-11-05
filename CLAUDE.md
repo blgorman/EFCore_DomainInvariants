@@ -11,7 +11,7 @@ The demo app, plan, slides, and narration for Brian Gorman's 45-minute talk **Cr
 ## The Design (settled, do not re-open)
 
 - **Two backing models.** `OrderModels/Anemic` is the bad model and **never changes**. `OrderModels/Domain` is the good model; it starts as a copy of the bad model and is what changes on stage.
-- **Each model has its own `Order`, `OrderLine`, and `Money`.** The good model's `OrderLine` and `Money` change on stage (internal constructor at step 3, guards at steps 5 and 6), so the bad model cannot share them. Brian questioned this on 2026-10-30 and kept the separate copies.
+- **Each model has its own `Order`, `OrderLine`, and `Money`.** The good model's `OrderLine` and `Money` change on stage (internal constructor at step 2, guards at step 7), so the bad model cannot share them. Brian questioned this on 2026-10-30 and kept the separate copies.
 - **One demo file: `TalkApp/TalkDemo.cs`.** It holds the menu and every call. No caller classes, no second demo file.
 - **Every menu option works from step 0.** Option N shows the problem on the bad model, then the solution on the good model. Before step N, the solution shows a "Not Yet Implemented" box.
 - **Nothing is typed on stage.** Every change is "delete one live line, uncomment the line(s) below it" or "uncomment the guard below". No signature is typed live; every member the demo calls exists at step 0 with its final signature.
@@ -19,7 +19,7 @@ The demo app, plan, slides, and narration for Brian Gorman's 45-minute talk **Cr
 ### The `//TODO: Talk Step N` pattern
 
 ```csharp
-//TODO: Talk Step 2 — Delete the next line and uncomment the line below it
+//TODO: Talk Step 3 — Delete the next line and uncomment the line below it
 public DateTime OrderDate { get; set; }
 //public DateTime OrderDate { get; private set; }
 ```
@@ -28,20 +28,32 @@ public DateTime OrderDate { get; set; }
 - The TODO states the exact count: "the line", "the two lines", "the three lines", "the five lines", or "the code" (everything commented until the block ends).
 - A line that changes twice carries the later TODO double-commented (`////TODO`) inside the earlier block, so uncommenting the earlier block produces a normal `//TODO`.
 - Each `TalkDemo` solution method starts with `throw new NotImplementedException();` under its TODO. The `TalkDemo` TODO is the last one applied for each step.
-- `Order.Place` works at step 0 because solutions 2 and 3 need an `Order` instance.
-- Step 6 also edits `TalkApp/Data/TalkDbContext.cs` (`OwnsOne` for `Total`), because EF Core cannot build the model once `Total` is `Money` without it.
+- `Order.Place` works at step 0. Step 1 (course Clip 1) changes only `TalkDemo`; every later solution creates its order through `Place`.
+- `OrderStatus` and `HasConversion<string>()` on `Status` exist at step 0, as in the course starter. There is no enum step.
+- `TalkApp/Data/TalkDbContext.cs` changes in the step that creates the member it maps: step 2 (`HasField("_lines")`), step 5 (`OwnsOne` for `Total`). Solutions 2, 5, and 6 save and reload through EF Core so each mapping is exercised.
+- One concept per step, in the course's Module 2 order, and every step opens with its problem before the solution (slides and demo).
+- Menu titles and slide titles name the concept and its solution, never the problem.
 
-### The seven steps
+### The seven steps (course Module 2 order)
 
-| Step | Technique | Menu option |
-|---|---|---|
-| 1 | `Status` becomes the `OrderStatus` enum | Status is a free string |
-| 2 | Private setters + `Process`/`Confirm`/`Ship`/`Cancel` | Shipping without confirming |
-| 3 | `_lines` backing field + `IReadOnlyCollection`, `AddLine`, internal `OrderLine` constructor | Lines changed behind the order's back |
-| 4 | Private `Order()` constructor | An empty order |
-| 5 | Guard clauses (`Place`, `AddLine`, `OrderLine`) | Bad quantities and duplicate products |
-| 6 | `Total` becomes `Money` + `Money` guards | Negative and mixed-currency totals |
-| 7 | EF Core config: `HasField("_lines")`, `HasConversion<string>()` | Saving and reloading through EF Core |
+| Step | Course | Technique | Menu option |
+|---|---|---|---|
+| 1 | Clip 1 | Factory method `Order.Place` (no domain edit) | Factory method: Order.Place |
+| 2 | Clip 2 | `_lines` backing field + `IReadOnlyCollection`, `AddLine`, internal `OrderLine` constructor + `HasField("_lines")` | Backing field and read-only Lines |
+| 3 | Clip 3 | Private setters | Private setters |
+| 4 | Clip 3 | `Process`/`Confirm`/`Ship`/`Cancel` | Domain methods control Status |
+| 5 | Clip 4 | `Total` becomes `Money` + `OwnsOne` | Total as a Money value object |
+| 6 | Clip 7 | Private `Order()` constructor, EF Core materialization, shadow FK shown | Private constructor and EF materialization |
+| 7 | Clip 8 | Guard clauses (`Place`, `AddLine`, `OrderLine`, `Money.Create`, `Money.Add`) | Guard clauses |
+
+---|---|---|
+| 1 | `Status` becomes the `OrderStatus` enum + `HasConversion<string>()` | Status is a free string |
+| 2 | Private setters | Changing an order after it is placed |
+| 3 | `Process`/`Confirm`/`Ship`/`Cancel` | Shipping without confirming |
+| 4 | `_lines` backing field + `IReadOnlyCollection`, `AddLine`, internal `OrderLine` constructor + `HasField("_lines")` | Lines changed behind the order's back |
+| 5 | Private `Order()` constructor | An empty order |
+| 6 | Guard clauses (`Place`, `AddLine`, `OrderLine`) | Bad quantities and duplicate products |
+| 7 | `Total` becomes `Money` + `Money` guards + `OwnsOne` | Negative and mixed-currency totals |
 
 ---
 
@@ -63,8 +75,8 @@ public DateTime OrderDate { get; set; }
 
 ## Running
 
-- **Always run as x64:** `dotnet run --project TalkApp -a x64`. LocalDB fails with error 193 otherwise.
-- The NuGet warnings for `System.Security.Cryptography.Pkcs` 9.0.4 come in transitively through the SQL Server provider. They are not compiler warnings.
+- **Database:** `TalkApp/Program.cs` loads user secrets over `appsettings.json`. On the Surface (ARM64) the secret points at the `sqledge` Docker container; LocalDB is x64 only and fails with error 193 there.
+- `System.Security.Cryptography.Pkcs` is pinned to 10.0.14 in `TalkApp/TalkApp.csproj` to clear the advisories on the version `Microsoft.Data.SqlClient` pulls in.
 - Never apply talk steps to the real repo files to test them. Use `tools/verify_steps.sh` against a scratch folder.
 
 ---

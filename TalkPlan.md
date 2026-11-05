@@ -8,7 +8,8 @@
 
 ## 1. The Short Version
 
-- **Two backing models.** The bad model (`OrderModels/Anemic`) is the anemic `Order` from Module 1 Clip 2 and never changes. The good model (`OrderModels/Domain`) starts as a copy of the bad model and is the code modified during the talk.
+- **Two backing models.** The bad model (`OrderModels/Anemic`) is the anemic `Order` from Module 1 Clip 2 and never changes. The good model (`OrderModels/Domain`) starts as a copy of the bad model, except that `Status` is already the `OrderStatus` enum (as in the Module 2 starter), and is the code modified during the talk.
+- **The steps follow the course.** Steps 1 to 7 follow Module 2 in order: Clip 1 (factory method), Clip 2 (backing field), Clip 3 (private setters, then the status domain methods), Clip 4 (`Money`), Clip 7 (private constructor and materialization), Clip 8 (guard clauses). Clips 5, 6, and 9 are not steps.
 - **One demo file: `TalkApp/TalkDemo.cs`.** It holds the talk menu and every call. Each menu option calls the bad model to show one problem, then calls the good model to show the mapped solution.
 - **Every menu option runs from step 0.** Before step N, option N shows the problem, then a "Not Yet Implemented" box.
 - **On stage:** apply every `//TODO: Talk Step N`, run option N, show the problem on the bad model and the solution on the good model.
@@ -20,9 +21,9 @@
 | Project | Contents |
 |---|---|
 | `OrderModels/Anemic` | The bad model: `Order`, `OrderLine`, `Money`. No TODOs. Never edited. |
-| `OrderModels/Domain` | The good model: `Order`, `OrderLine`, `Money`, `OrderStatus`. Every change is pre-staged under a `//TODO: Talk Step N`. |
+| `OrderModels/Domain` | The good model: `Order`, `OrderLine`, `Money`, `OrderStatus`. `OrderStatus` exists at step 0. Every change is pre-staged under a `//TODO: Talk Step N`. |
 | `TalkApp/TalkDemo.cs` | The menu, seven problem methods (bad model), seven solution methods (good model). |
-| `TalkApp/Data/TalkDbContext.cs` | Maps both models to separate tables (`AnemicOrders`, `DomainOrders`). Steps 6 and 7 edit this file. |
+| `TalkApp/Data/TalkDbContext.cs` | Maps both models to separate tables (`AnemicOrders`, `DomainOrders`). `HasConversion<string>()` on `Status` is live at step 0. Step 2 adds `HasField("_lines")`; step 5 adds `OwnsOne` for `Total`. |
 | `TalkApp/Program.cs` | Drops and recreates the database on every run (`EnsureDeletedAsync` + `EnsureCreatedAsync`), then starts the menu. No migrations. |
 | `ConsoleHelpers` | `OutputHelpers` and `InputHelpers`, copied from the course. |
 
@@ -56,13 +57,13 @@ public class Order
 
 - **Replace a line:** the bad code stays live. A `//TODO: Talk Step N — Delete the next line and uncomment the line below it` sits directly above the live line; the good code sits commented out directly below it. At step N: delete the live line, uncomment the good code.
 - **Add a guard clause:** `//TODO: Talk Step N — Uncomment the ... guard clause(s) below`, followed by the commented guard.
-- **A line that changes twice** (`Status` at steps 1 and 2, `Total` at steps 2 and 6) carries the later step's TODO double-commented (`////TODO`) inside the earlier step's block. Uncommenting the earlier block turns the later TODO into a normal `//TODO`.
+- **A line that changes twice** (`Total` at steps 3 and 5) carries the later step's TODO double-commented (`////TODO`) inside the earlier step's block. Uncommenting the earlier block turns the later TODO into a normal `//TODO`.
 - **Members stubbed with their final signature at step 0:** `AddLine`, `Process`, `Confirm`, `Ship`, `Cancel`. Each body is `throw new NotImplementedException();` under its TODO, with the real body commented below.
 - **No signature is typed live.** Every change is deleting a line and uncommenting the line(s) below it.
 
 ### 4.2 `Order.Place` is live from step 0
 
-`Order.Place(string customerName, IEnumerable<(int productId, int quantity, Money unitPrice)> lines)` works at step 0, the same as the Module 2 starter. Solutions 2 and 3 need an `Order` to call `Ship()` and `AddLine` on, and `TalkDemo` changes only by uncommenting, so `Place` has to work before step 4. The body of `Place` follows the model through steps 1, 3, and 5 via its own TODOs.
+`Order.Place(string customerName, IEnumerable<(int productId, int quantity, Money unitPrice)> lines)` works at step 0, the same as the Module 2 starter. Step 1 is the course's Clip 1: no domain code changes, and the demo contrasts the anemic `new Order { ... }` with `Order.Place`. Every later solution creates its order through `Place`. The body of `Place` follows the model through steps 2 and 7 via its own TODOs.
 
 ### 4.3 The solution method in `TalkDemo`
 
@@ -72,17 +73,23 @@ Each solution method starts with `throw new NotImplementedException();` under `/
 
 ## 5. Problem → Solution Map
 
-| Option | Problem (bad model) | `//TODO: Talk Step N` edits | Solution (good model) |
-|---|---|---|---|
-| 1 | `Status = "Shiped"` and `"Banana"` accepted | `Status` becomes `OrderStatus`; `Place` sets `OrderStatus.Placed` | `Status` property type is `OrderStatus`; `"Shiped"` and `"Banana"` are not values |
-| 2 | `Status = "Shipped"` on a Placed order; `OrderDate` and `CustomerName` rewritten after shipping | Private setters on `Id`, `Status`, `Total`, `OrderDate`, `CustomerName`; bodies of `Process`, `Confirm`, `Ship`, `Cancel` | `Ship()` on a Placed order is rejected; `Process` → `Confirm` → `Ship` reaches Shipped |
-| 3 | `Lines.Add` leaves `Total` stale; `Lines.Clear` empties the order | `_lines` + `IReadOnlyCollection<OrderLine> Lines`; `AddLine` body; `Place` calls `AddLine`; `OrderLine` constructor becomes `internal` | `AddLine` moves `Total` from 10.00 to 20.00 |
-| 4 | `new Order()` with no customer, status, date, or lines | `Order()` becomes private | `Order.Place` is the only way to create an order |
-| 5 | Quantity -3, product 0, product 2001 twice, all accepted | Guards in `Place` (blank customer, no lines), `AddLine` (duplicate product), `OrderLine` constructor (product id, quantity) | Each bad input is rejected with a readable message; a valid order succeeds |
-| 6 | USD + EUR summed into one decimal; `Total = -42.50m` | `Total` becomes `Money`; `RecalculateTotal` sums `Money`; guards in `Money.Create` and `Money.Add`; `TalkDbContext` maps `Total` with `OwnsOne` | Negative amount and mixed currency are rejected; a valid total is `59.97 USD` |
-| 7 | EF Core saves and reloads every invalid bad order | `TalkDbContext`: `HasField("_lines")` and `HasConversion<string>()` on `Status` | EF Core saves and reloads the good order through the private constructor; the `Status` column holds `'Confirmed'` |
+One concept per step, in the course's order. Each step opens with its problem on the bad model, then applies the technique, then runs the option. Menu titles name the concept and its solution.
 
-Step 6 includes the `OwnsOne` mapping for `Total` because the app can't build its EF Core model once `Total` is a `Money` without it. Step 7 makes the backing field and the string status column explicit.
+| Option (menu title) | Course | Problem (bad model) | `//TODO: Talk Step N` edits | Solution (good model) |
+|---|---|---|---|---|
+| 1. Factory method: `Order.Place` | M2 Clip 1 | `new Order { Status = "Banana", Total = -99.99m }` with no customer, date, or lines; EF Core saves and reloads it | `TalkDemo` only | `Order.Place("Contoso", two lines)` sets customer, `Placed`, date, 2 lines, total 44.98 |
+| 2. Backing field and read-only `Lines` | M2 Clip 2 | `Lines.Add` leaves `Total` stale; `Lines.Clear` empties the order | `_lines` + `IReadOnlyCollection<OrderLine> Lines`; `AddLine` body; `Place` calls `AddLine`; `OrderLine` constructor becomes `internal`; `TalkDbContext`: `HasField("_lines")` | `AddLine` moves `Total` from 10.00 to 20.00; EF Core saves and reloads 2 lines into `_lines` |
+| 3. Private setters | M2 Clip 3 | Caller rewrites `OrderDate`, `CustomerName`, and `Total` on a placed order | Private setters on `Id`, `Status`, `Total`, `OrderDate`, `CustomerName` | Every setter reports private; `Order.Place` still sets them inside `Order` |
+| 4. Domain methods control `Status` | M2 Clip 3 | `Status = "Shipped"` on a Placed order and on a Cancelled order | Bodies of `Process`, `Confirm`, `Ship`, `Cancel` | `Ship()` while Placed and while Cancelled is rejected; `Process` → `Confirm` → `Ship` reaches Shipped |
+| 5. `Total` as a `Money` value object | M2 Clip 4 | 19.99 USD + 25.00 EUR summed into a decimal `Total` of 44.99 | `Total` becomes `Money`; `RecalculateTotal` sums `Money`; `TalkDbContext`: `OwnsOne` for `Total` | `Total` is `59.97 USD`, reloads as `59.97 USD`; SQL Server holds `Total_Amount` and `Total_Currency` |
+| 6. Private constructor and EF materialization | M2 Clip 7 | `new Order()` with no customer, status, date, or lines | The `Order` constructor becomes private | No public `Order()`; EF Core reloads the order through the private constructor; the line's `OrderId` is a shadow foreign key |
+| 7. Guard clauses | M2 Clip 8 | Quantity -3, product 0, product 2001 twice, blank customer, `Money.Create(-42.50m)`, USD + EUR: all accepted | Guards in `Place` (blank customer, no lines), `AddLine` (duplicate product), `OrderLine` constructor (product id, quantity), `Money.Create` (negative, blank currency), `Money.Add` (currency mismatch) | Each bad input is rejected with a readable message; a valid order succeeds |
+
+`HasField("_lines")` is not required when the field name follows the `_lines` convention (verified 2026-11-04: EF Core reloads the lines without it). The talk keeps it because the mapping must be explicit whenever the field name diverges from the convention.
+
+Step 5 includes the `OwnsOne` mapping for `Total` because the app can't build its EF Core model once `Total` is a `Money` without it. Each line gets its own `Money` instance: EF Core tracks an owned instance on one owner only, and a shared `Money` saves as NULL on the second line.
+
+The shadow foreign key (course Clip 5) is not a step. Solution 6 shows the one the talk already has: `OrderLine` has no `OrderId` property, and `TalkDbContext` maps it with `HasForeignKey("OrderId")`.
 
 ---
 
@@ -90,16 +97,15 @@ Step 6 includes the `OwnsOne` mapping for `Total` because the app can't build it
 
 | Time | Segment |
 |---|---|
-| 0–4 min | Slides: the `Order` invariants (customer and at least one line; `Total` equals the sum of the lines; positive quantities, each product once; one currency; Placed → Processing → Confirmed → Shipped; a cancelled order can't be shipped) |
-| 4–9 min | Walk the bad model, then run options 1–7 to show every problem and every "Not Yet Implemented" box |
-| 9–13 min | Step 1: enum |
-| 13–18 min | Step 2: private setters + domain methods |
-| 18–23 min | Step 3: read-only collection + backing field |
-| 23–27 min | Step 4: private constructor |
-| 27–31 min | Step 5: guard clauses |
-| 31–36 min | Step 6: value object |
-| 36–41 min | Step 7: EF Core persists the good model |
-| 41–45 min | Recap + Q&A: the bad model next to the good model |
+| 0–5 min | Slides: the anemic `Order`, the `Order` invariants, the two models |
+| 5–9 min | Step 1: factory method |
+| 9–14 min | Step 2: backing field + read-only collection |
+| 14–18 min | Step 3: private setters |
+| 18–23 min | Step 4: domain methods for `Status` |
+| 23–28 min | Step 5: `Money` value object |
+| 28–33 min | Step 6: private constructor + EF materialization |
+| 33–38 min | Step 7: guard clauses |
+| 38–45 min | Recap + Q&A: the bad model next to the good model |
 
 ---
 
@@ -109,16 +115,18 @@ Step 6 includes the `OwnsOne` mapping for `Total` because the app can't build it
 - **One demo file, `TalkDemo.cs`, holds the menu and every call.** No caller classes.
 - **Keep `CustomerName` as a string.** No `Customer` entity and no shadow `CustomerId`.
 - **Tag each step** (`talk-step-0` through `talk-step-7`) so you can recover with `git checkout` if a step goes wrong on stage.
-- **Run as x64** (`dotnet run --project TalkApp -a x64`) on this machine; LocalDB returns error 193 otherwise.
+- **Follow the course's Module 2 order.** No enum step: `OrderStatus` exists at step 0, as in the course starter.
+- **Database:** `TalkApp/Program.cs` loads user secrets over `appsettings.json`; on the Surface (ARM64) the secret points at the `sqledge` Docker container. LocalDB is x64 only.
 
 ---
 
 ## 8. Verified
 
-Built and run on 2026-10-30 by applying each step's TODOs in order to a scratch copy:
-- Step 0 and each of steps 1–7: 0 compile errors, 0 compiler warnings.
-- Every menu option runs at every step; at step 7 all seven solution boxes show the results listed in section 5.
-- The only build warnings are NuGet advisories for the transitive `System.Security.Cryptography.Pkcs` 9.0.4 package pulled in by the SQL Server provider.
+Built and run on 2026-11-05 with `tools/verify_steps.sh`, plus all seven options run after each step:
+- Step 0 and each of steps 1–7: 0 compile errors.
+- At step 0 every option prints its "Bad:" box and then the "Not Yet Implemented" box.
+- After step N, options 1 to N print their "Good:" boxes and options N+1 to 7 print "Not Yet Implemented"; no crashes, no box overflow.
+- `System.Security.Cryptography.Pkcs` is pinned to 10.0.14 in `TalkApp/TalkApp.csproj`; no vulnerable packages.
 
 ---
 

@@ -10,13 +10,13 @@ public static class TalkDemo
 {
     private static readonly string[] MenuOptions =
     {
-        "Status is a free string",
-        "Shipping without confirming",
-        "Lines changed behind the order's back",
-        "An empty order",
-        "Bad quantities and duplicate products",
-        "Negative and mixed-currency totals",
-        "Saving and reloading through EF Core",
+        "Factory method: Order.Place",
+        "Backing field and read-only Lines",
+        "Private setters",
+        "Domain methods control Status",
+        "Total as a Money value object",
+        "Private constructor and EF materialization",
+        "Guard clauses",
         "Exit"
     };
 
@@ -43,13 +43,13 @@ public static class TalkDemo
 
             switch (choice)
             {
-                case 1: Problem1StatusIsAFreeString(); break;
-                case 2: Problem2ShipWithoutConfirming(); break;
-                case 3: Problem3LinesChangedBehindTheOrdersBack(); break;
-                case 4: Problem4EmptyOrder(); break;
-                case 5: Problem5BadQuantitiesAndDuplicateProducts(); break;
-                case 6: Problem6NegativeAndMixedCurrencyTotals(); break;
-                case 7: await Problem7SaveAndReloadAsync(options); break;
+                case 1: await Problem1AnyoneCanBuildAnyOrderAsync(options); break;
+                case 2: Problem2LinesChangedBehindTheOrdersBack(); break;
+                case 3: Problem3ChangingAPlacedOrder(); break;
+                case 4: Problem4ShipWithoutConfirming(); break;
+                case 5: Problem5TotalIsJustADecimal(); break;
+                case 6: Problem6EmptyOrder(); break;
+                case 7: Problem7BadInputIsAccepted(); break;
             }
 
             //----------------------------------------------------------------//
@@ -62,13 +62,13 @@ public static class TalkDemo
             {
                 switch (choice)
                 {
-                    case 1: Solution1StatusIsAnOrderStatus(); break;
-                    case 2: Solution2DomainMethodsGuardTransitions(); break;
-                    case 3: Solution3AddLineKeepsTotalInStep(); break;
-                    case 4: Solution4PlaceIsTheOnlyWayIn(); break;
-                    case 5: Solution5GuardClausesRejectBadInput(); break;
-                    case 6: Solution6MoneyRejectsBadTotals(); break;
-                    case 7: await Solution7SaveAndReloadAsync(options); break;
+                    case 1: Solution1PlaceCreatesACompleteOrder(); break;
+                    case 2: await Solution2AddLineKeepsTotalInStepAsync(options); break;
+                    case 3: Solution3PrivateSettersLockTheOrder(); break;
+                    case 4: Solution4DomainMethodsGuardTransitions(); break;
+                    case 5: await Solution5TotalIsMoneyAsync(options); break;
+                    case 6: await Solution6PrivateConstructorAndMaterializationAsync(options); break;
+                    case 7: Solution7GuardClausesRejectBadInput(); break;
                 }
             }
             catch (NotImplementedException)
@@ -93,95 +93,70 @@ public static class TalkDemo
         }
     }
 
-    private static void Problem1StatusIsAFreeString()
-    {
-        var typo = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Shiped" };
-        var banana = new Anemic.Order { CustomerName = "Test Customer", OrderDate = DateTime.Now, Status = "Banana", Total = -99.99m };
+    // Step 1 (course Module 2 Clip 1): the factory method
 
-        Console.Write(OutputHelpers.BoxedArrayWithTitle(
-            "Bad: Status Is a Free String",
-            new[]
-            {
-                $"order.Status = 'Shiped'  ->  Status: {typo.Status}",
-                $"order.Status = 'Banana'  ->  Status: {banana.Status}",
-                "",
-                "The compiler accepts any string as a status."
-            }
-        ));
+    private static async Task Problem1AnyoneCanBuildAnyOrderAsync(DbContextOptions<TalkDbContext> options)
+    {
+        var order = new Anemic.Order { Status = "Banana", Total = -99.99m };
+
+        await using (var context = new TalkDbContext(options))
+        {
+            context.AnemicOrders.Add(order);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = new TalkDbContext(options))
+        {
+            var reloaded = await context.AnemicOrders.Include(o => o.Lines).SingleAsync(o => o.Id == order.Id);
+
+            Console.Write(OutputHelpers.BoxedArrayWithTitle(
+                "Bad: Any Caller Can Build Any Order",
+                new[]
+                {
+                    "new Order { Status = \"Banana\", Total = -99.99m }",
+                    "",
+                    $"Customer:    '{reloaded.CustomerName}'",
+                    $"Status:      '{reloaded.Status}'",
+                    $"Order date:  {reloaded.OrderDate:d}",
+                    $"Lines:       {reloaded.Lines.Count}",
+                    $"Total:       {reloaded.Total}",
+                    "",
+                    "EF Core saved and reloaded every one of those values."
+                }
+            ));
+        }
     }
 
-    private static void Solution1StatusIsAnOrderStatus()
+    private static void Solution1PlaceCreatesACompleteOrder()
     {
         //TODO: Talk Step 1 — Delete the next line and uncomment the code below it
         throw new NotImplementedException();
-        //var statusType = typeof(Domain.Order).GetProperty(nameof(Domain.Order.Status))!.PropertyType;
-        //var typoIsAStatus = Enum.TryParse<Domain.OrderStatus>("Shiped", out _);
-        //var bananaIsAStatus = Enum.TryParse<Domain.OrderStatus>("Banana", out _);
+        //var order = Domain.Order.Place("Contoso", new[]
+        //{
+        //    (2001, 2, Domain.Money.Create(19.99m, "USD")),
+        //    (2002, 1, Domain.Money.Create(5.00m, "USD"))
+        //});
         //
         //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: Status Is an OrderStatus",
+        //    "Good: Order.Place Creates a Complete Order",
         //    new[]
         //    {
-        //        $"Status property type:      {statusType.Name}",
-        //        $"Allowed values:            {string.Join(", ", Enum.GetNames<Domain.OrderStatus>())}",
-        //        $"'Shiped' is an OrderStatus: {typoIsAStatus}",
-        //        $"'Banana' is an OrderStatus: {bananaIsAStatus}",
+        //        "Order.Place(\"Contoso\", two lines)",
         //        "",
-        //        "order.Status = 'Banana' no longer compiles."
+        //        $"Customer:    {order.CustomerName}",
+        //        $"Status:      {order.Status}",
+        //        $"Order date:  {order.OrderDate:d}",
+        //        $"Lines:       {order.Lines.Count}",
+        //        $"Total:       {order.Total}",
+        //        "",
+        //        "Order.Place sets every value an order needs, in one call."
         //    }
         //));
     }
 
-    private static void Problem2ShipWithoutConfirming()
-    {
-        var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed", Total = 39.98m };
-        var placedOn = order.OrderDate;
+    // Step 2 (course Module 2 Clip 2): the backing field and HasField
 
-        order.Status = "Shipped";
-        order.OrderDate = DateTime.Now.AddDays(-30);
-        order.CustomerName = "Someone Else";
-
-        Console.Write(OutputHelpers.BoxedArrayWithTitle(
-            "Bad: Status Jumps Straight to Shipped",
-            new[]
-            {
-                "order.Status = 'Shipped' on a Placed order",
-                $"Status:      {order.Status}   (never Processing, never Confirmed)",
-                "",
-                "After shipping, the caller rewrites history:",
-                $"Order date:  {placedOn:d}  ->  {order.OrderDate:d}",
-                $"Customer:    Contoso  ->  {order.CustomerName}"
-            }
-        ));
-    }
-
-    private static void Solution2DomainMethodsGuardTransitions()
-    {
-        //TODO: Talk Step 2 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
-        //var shipWhilePlaced = Attempt(() => order.Ship());
-        //
-        //order.Process();
-        //order.Confirm();
-        //order.Ship();
-        //
-        //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: Domain Methods Guard Every Transition",
-        //    new[]
-        //    {
-        //        $"Ship() on a Placed order:  {shipWhilePlaced}",
-        //        "",
-        //        "Process() -> Confirm() -> Ship()",
-        //        $"Status:  {order.Status}",
-        //        "",
-        //        "order.Status = ..., order.OrderDate = ..., and order.CustomerName = ...",
-        //        "no longer compile."
-        //    }
-        //));
-    }
-
-    private static void Problem3LinesChangedBehindTheOrdersBack()
+    private static void Problem2LinesChangedBehindTheOrdersBack()
     {
         var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed" };
         order.Lines.Add(new Anemic.OrderLine(2001, 1, Anemic.Money.Create(10.00m, "USD")));
@@ -206,29 +181,193 @@ public static class TalkDemo
         ));
     }
 
-    private static void Solution3AddLineKeepsTotalInStep()
+    private static async Task Solution2AddLineKeepsTotalInStepAsync(DbContextOptions<TalkDbContext> options)
     {
-        //TODO: Talk Step 3 — Delete the next line and uncomment the code below it
+        //TODO: Talk Step 2 — Delete the next line and uncomment the code below it
         throw new NotImplementedException();
         //var order = Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(10.00m, "USD")) });
         //var totalBefore = order.Total;
         //
         //order.AddLine(2002, 2, Domain.Money.Create(5.00m, "USD"));
         //
+        //await using (var context = new TalkDbContext(options))
+        //{
+        //    context.DomainOrders.Add(order);
+        //    await context.SaveChangesAsync();
+        //}
+        //
+        //await using (var context = new TalkDbContext(options))
+        //{
+        //    var reloaded = await context.DomainOrders.Include(o => o.Lines).SingleAsync(o => o.Id == order.Id);
+        //
+        //    Console.Write(OutputHelpers.BoxedArrayWithTitle(
+        //        "Good: AddLine Keeps Total in Step",
+        //        new[]
+        //        {
+        //            $"Before AddLine:      Lines: 1   Total: {totalBefore}",
+        //            $"After AddLine:       Lines: {order.Lines.Count}   Total: {order.Total}",
+        //            $"Saved and reloaded:  Lines: {reloaded.Lines.Count}   Total: {reloaded.Total}",
+        //            "",
+        //            "EF Core filled _lines, the field named by HasField(\"_lines\").",
+        //            "order.Lines.Add(...) and order.Lines.Clear() no longer compile.",
+        //            "new OrderLine(...) no longer compiles outside the model."
+        //        }
+        //    ));
+        //}
+    }
+
+    // Step 3 (course Module 2 Clip 3): private setters
+
+    private static void Problem3ChangingAPlacedOrder()
+    {
+        var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed", Total = 39.98m };
+        var placedOn = order.OrderDate;
+
+        order.OrderDate = DateTime.Now.AddDays(-30);
+        order.CustomerName = "Someone Else";
+        order.Total = 0.01m;
+
+        Console.Write(OutputHelpers.BoxedArrayWithTitle(
+            "Bad: Any Caller Can Rewrite a Placed Order",
+            new[]
+            {
+                $"Order date:  {placedOn:d}  ->  {order.OrderDate:d}",
+                "Customer:    Contoso  ->  Someone Else",
+                $"Total:       39.98  ->  {order.Total}",
+                "",
+                "Every property has a public setter, so nothing stops the caller."
+            }
+        ));
+    }
+
+    private static void Solution3PrivateSettersLockTheOrder()
+    {
+        //TODO: Talk Step 3 — Delete the next line and uncomment the code below it
+        throw new NotImplementedException();
+        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        //var rows = new[] { "Id", "Status", "Total", "OrderDate", "CustomerName" }
+        //    .Select(name => $"{name,-13} setter: {(typeof(Domain.Order).GetProperty(name)!.SetMethod!.IsPublic ? "public" : "private")}")
+        //    .ToList();
+        //rows.Add("");
+        //rows.Add($"Order.Place still sets them inside Order: {order.CustomerName}, {order.Status}");
+        //rows.Add("");
+        //rows.Add("order.OrderDate = ..., order.CustomerName = ..., and order.Total = ...");
+        //rows.Add("no longer compile outside the Order class.");
+        //
+        //Console.Write(OutputHelpers.BoxedArrayWithTitle("Good: Private Setters Lock the Order", rows.ToArray()));
+    }
+
+    // Step 4 (course Module 2 Clip 3): domain methods for the status transitions
+
+    private static void Problem4ShipWithoutConfirming()
+    {
+        var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed", Total = 39.98m };
+        order.Status = "Shipped";
+
+        var cancelled = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Cancelled", Total = 39.98m };
+        cancelled.Status = "Shipped";
+
+        Console.Write(OutputHelpers.BoxedArrayWithTitle(
+            "Bad: Status Jumps Straight to Shipped",
+            new[]
+            {
+                "order.Status = 'Shipped' on a Placed order",
+                $"Status:  {order.Status}   (never Processing, never Confirmed)",
+                "",
+                "order.Status = 'Shipped' on a Cancelled order",
+                $"Status:  {cancelled.Status}"
+            }
+        ));
+    }
+
+    private static void Solution4DomainMethodsGuardTransitions()
+    {
+        //TODO: Talk Step 4 — Delete the next line and uncomment the code below it
+        throw new NotImplementedException();
+        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        //var shipWhilePlaced = Attempt(() => order.Ship());
+        //
+        //order.Process();
+        //order.Confirm();
+        //order.Ship();
+        //
+        //var cancelled = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        //cancelled.Cancel();
+        //var shipWhileCancelled = Attempt(() => cancelled.Ship());
+        //
         //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: AddLine Keeps Total in Step",
+        //    "Good: Domain Methods Guard Every Transition",
         //    new[]
         //    {
-        //        $"Before AddLine:  Lines: 1   Total: {totalBefore}",
-        //        $"After AddLine:   Lines: {order.Lines.Count}   Total: {order.Total}",
+        //        $"Ship() while Placed:    {shipWhilePlaced}",
+        //        $"Ship() while Cancelled: {shipWhileCancelled}",
         //        "",
-        //        "order.Lines.Add(...) and order.Lines.Clear() no longer compile.",
-        //        "new OrderLine(...) no longer compiles outside the model."
+        //        "Process() -> Confirm() -> Ship()",
+        //        $"Status:  {order.Status}"
         //    }
         //));
     }
 
-    private static void Problem4EmptyOrder()
+    // Step 5 (course Module 2 Clip 4): Total as a Money value object with OwnsOne
+
+    private static void Problem5TotalIsJustADecimal()
+    {
+        var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed" };
+        order.Lines.Add(new Anemic.OrderLine(2001, 1, Anemic.Money.Create(19.99m, "USD")));
+        order.Lines.Add(new Anemic.OrderLine(2002, 1, Anemic.Money.Create(25.00m, "EUR")));
+        order.Total = order.Lines.Sum(l => l.LineTotal.Amount);
+
+        Console.Write(OutputHelpers.BoxedArrayWithTitle(
+            "Bad: Total Is Just a Decimal",
+            new[]
+            {
+                "Line 1: 19.99 USD    Line 2: 25.00 EUR",
+                $"Total:  {order.Total}   (dollars? euros?)",
+                "",
+                "Total is a decimal, so the currency is lost,",
+                "and the Total column in SQL Server is a bare number."
+            }
+        ));
+    }
+
+    private static async Task Solution5TotalIsMoneyAsync(DbContextOptions<TalkDbContext> options)
+    {
+        //TODO: Talk Step 5 — Delete the next line and uncomment the code below it
+        throw new NotImplementedException();
+        //var order = Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")), (2002, 2, Domain.Money.Create(19.99m, "USD")) });
+        //
+        //await using (var context = new TalkDbContext(options))
+        //{
+        //    context.DomainOrders.Add(order);
+        //    await context.SaveChangesAsync();
+        //}
+        //
+        //await using (var context = new TalkDbContext(options))
+        //{
+        //    var reloaded = await context.DomainOrders.SingleAsync(o => o.Id == order.Id);
+        //    var columns = await context.Database
+        //        .SqlQueryRaw<string>("SELECT CONCAT('Total_Amount ', Total_Amount, ', Total_Currency ', Total_Currency) AS Value FROM DomainOrders WHERE Id = {0}", order.Id)
+        //        .SingleAsync();
+        //
+        //    Console.Write(OutputHelpers.BoxedArrayWithTitle(
+        //        "Good: Total Is Money",
+        //        new[]
+        //        {
+        //            $"Total type:          {order.Total.GetType().Name}",
+        //            $"Order total:         {order.Total}",
+        //            $"Saved and reloaded:  {reloaded.Total}",
+        //            $"SQL Server columns:  {columns}",
+        //            "",
+        //            "OwnsOne maps Money to two columns on the DomainOrders table.",
+        //            "order.Total = -42.50m no longer compiles."
+        //        }
+        //    ));
+        //}
+    }
+
+    // Step 6 (course Module 2 Clip 7): the private constructor and EF Core materialization
+
+    private static void Problem6EmptyOrder()
     {
         var order = new Anemic.Order();
 
@@ -240,146 +379,19 @@ public static class TalkDemo
                 $"Status:      '{order.Status}'",
                 $"Order date:  {order.OrderDate:d}",
                 $"Lines:       {order.Lines.Count}",
-                $"Total:       {order.Total}"
-            }
-        ));
-    }
-
-    private static void Solution4PlaceIsTheOnlyWayIn()
-    {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
-        //
-        //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: Order.Place Is the Only Way to Create an Order",
-        //    new[]
-        //    {
-        //        $"Customer:    {order.CustomerName}",
-        //        $"Status:      {order.Status}",
-        //        $"Order date:  {order.OrderDate:d}",
-        //        $"Lines:       {order.Lines.Count}",
-        //        $"Total:       {order.Total}",
-        //        "",
-        //        "new Order() no longer compiles."
-        //    }
-        //));
-    }
-
-    private static void Problem5BadQuantitiesAndDuplicateProducts()
-    {
-        var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed" };
-        order.Lines.Add(new Anemic.OrderLine(2001, -3, Anemic.Money.Create(19.99m, "USD")));
-        order.Lines.Add(new Anemic.OrderLine(0, 1, Anemic.Money.Create(5.00m, "USD")));
-        order.Lines.Add(new Anemic.OrderLine(2001, 2, Anemic.Money.Create(19.99m, "USD")));
-
-        var rows = order.Lines
-            .Select(l => $"Product {l.ProductId,5}   Quantity {l.Quantity,3}   Line total {l.LineTotal.Amount,8}")
-            .ToList();
-        rows.Add("");
-        rows.Add("Quantity -3, product 0, and product 2001 twice: all accepted.");
-
-        Console.Write(OutputHelpers.BoxedArrayWithTitle("Bad: Every Line Is Accepted", rows.ToArray()));
-    }
-
-    private static void Solution5GuardClausesRejectBadInput()
-    {
-        //TODO: Talk Step 5 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //var price = Domain.Money.Create(19.99m, "USD");
-        //
-        //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: Guard Clauses Reject Bad Input",
-        //    new[]
-        //    {
-        //        $"Quantity -3:        {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, -3, price) }))}",
-        //        $"Product 0:          {Attempt(() => Domain.Order.Place("Contoso", new[] { (0, 1, price) }))}",
-        //        $"Product 2001 twice: {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, price), (2001, 2, price) }))}",
-        //        $"Blank customer:     {Attempt(() => Domain.Order.Place("", new[] { (2001, 1, price) }))}",
-        //        $"No lines:           {Attempt(() => Domain.Order.Place("Contoso", Array.Empty<(int, int, Domain.Money)>()))}",
-        //        $"Valid order:        {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 2, price) }))}"
-        //    }
-        //));
-    }
-
-    private static void Problem6NegativeAndMixedCurrencyTotals()
-    {
-        var order = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Placed" };
-        order.Lines.Add(new Anemic.OrderLine(2001, 1, Anemic.Money.Create(19.99m, "USD")));
-        order.Lines.Add(new Anemic.OrderLine(2002, 1, Anemic.Money.Create(25.00m, "EUR")));
-        var mixedSum = order.Lines.Sum(l => l.LineTotal.Amount);
-
-        order.Total = -42.50m;
-
-        Console.Write(OutputHelpers.BoxedArrayWithTitle(
-            "Bad: Total Is Just a Decimal",
-            new[]
-            {
-                "19.99 USD + 25.00 EUR summed into one decimal:",
-                $"Sum: {mixedSum}   (dollars? euros?)",
+                $"Total:       {order.Total}",
                 "",
-                "order.Total = -42.50m",
-                $"Total: {order.Total}"
+                "A public constructor lets any caller skip Order.Place."
             }
         ));
     }
 
-    private static void Solution6MoneyRejectsBadTotals()
+    private static async Task Solution6PrivateConstructorAndMaterializationAsync(DbContextOptions<TalkDbContext> options)
     {
         //TODO: Talk Step 6 — Delete the next line and uncomment the code below it
         throw new NotImplementedException();
-        //var dollars = Domain.Money.Create(19.99m, "USD");
-        //var euros = Domain.Money.Create(25.00m, "EUR");
-        //var valid = Domain.Order.Place("Contoso", new[] { (2001, 1, dollars), (2002, 2, dollars) });
-        //
-        //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: Total Is Money",
-        //    new[]
-        //    {
-        //        $"Money.Create(-42.50m):  {Attempt(() => Domain.Money.Create(-42.50m, "USD"))}",
-        //        $"USD line + EUR line:    {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, dollars), (2002, 1, euros) }))}",
-        //        "",
-        //        $"Valid order total:  {valid.Total.Amount} {valid.Total.Currency}",
-        //        "",
-        //        "order.Total = -42.50m no longer compiles."
-        //    }
-        //));
-    }
-
-    private static async Task Problem7SaveAndReloadAsync(DbContextOptions<TalkDbContext> options)
-    {
-        var banana = new Anemic.Order { CustomerName = "Test Customer", OrderDate = DateTime.Now, Status = "Banana", Total = -99.99m };
-        var empty = new Anemic.Order();
-        var mixed = new Anemic.Order { CustomerName = "Contoso", OrderDate = DateTime.Now, Status = "Shipped", Total = -42.50m };
-        mixed.Lines.Add(new Anemic.OrderLine(2001, -3, Anemic.Money.Create(19.99m, "USD")));
-        mixed.Lines.Add(new Anemic.OrderLine(2001, 1, Anemic.Money.Create(25.00m, "EUR")));
-
-        await using (var context = new TalkDbContext(options))
-        {
-            context.AnemicOrders.AddRange(banana, empty, mixed);
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = new TalkDbContext(options))
-        {
-            var reloaded = await context.AnemicOrders.Include(o => o.Lines).OrderBy(o => o.Id).ToListAsync();
-            var rows = reloaded
-                .Select(o => $"Id {o.Id}   Status '{o.Status}'   Customer '{o.CustomerName}'   Lines {o.Lines.Count}   Total {o.Total}")
-                .ToList();
-            rows.Add("");
-            rows.Add("EF Core saved and reloaded every invalid order.");
-
-            Console.Write(OutputHelpers.BoxedArrayWithTitle("Bad: SQL Server Accepts Every Invalid Order", rows.ToArray()));
-        }
-    }
-
-    private static async Task Solution7SaveAndReloadAsync(DbContextOptions<TalkDbContext> options)
-    {
-        //TODO: Talk Step 7 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")), (2002, 1, Domain.Money.Create(5.00m, "USD")) });
-        //order.Process();
-        //order.Confirm();
+        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        //var publicConstructor = typeof(Domain.Order).GetConstructor(Type.EmptyTypes);
         //
         //await using (var context = new TalkDbContext(options))
         //{
@@ -390,23 +402,72 @@ public static class TalkDemo
         //await using (var context = new TalkDbContext(options))
         //{
         //    var reloaded = await context.DomainOrders.Include(o => o.Lines).SingleAsync(o => o.Id == order.Id);
-        //    var statusColumn = await context.Database
-        //        .SqlQueryRaw<string>("SELECT Status AS Value FROM DomainOrders WHERE Id = {0}", order.Id)
-        //        .SingleAsync();
+        //    var lineOrderId = context.Entry(reloaded.Lines.First()).Property<int?>("OrderId").CurrentValue;
         //
         //    Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //        "Good: EF Core Saves and Reloads the Good Model",
+        //        "Good: Private Constructor, EF Core Still Rebuilds the Order",
         //        new[]
         //        {
-        //            $"Id {reloaded.Id}   Status {reloaded.Status}   Customer {reloaded.CustomerName}   Lines {reloaded.Lines.Count}",
-        //            $"Total: {reloaded.Total.Amount} {reloaded.Total.Currency}",
-        //            $"Status column in SQL Server: '{statusColumn}'",
+        //            $"Public Order() constructor:  {(publicConstructor is null ? "none" : "public")}",
         //            "",
-        //            "EF Core used the private constructor and filled _lines directly.",
-        //            "The good model contains no EF Core code."
+        //            $"Saved and reloaded:  Id {reloaded.Id}   {reloaded.CustomerName}   {reloaded.Status}",
+        //            $"                     Lines {reloaded.Lines.Count}   Total {reloaded.Total}",
+        //            "EF Core rebuilt the order through the private constructor.",
+        //            $"OrderLine has no OrderId property: shadow foreign key {lineOrderId}",
+        //            "",
+        //            "new Order() no longer compiles. Order.Place is the only way in."
         //        }
         //    ));
         //}
+    }
+
+    // Step 7 (course Module 2 Clip 8): guard clauses
+
+    private static void Problem7BadInputIsAccepted()
+    {
+        var order = new Anemic.Order { CustomerName = "", OrderDate = DateTime.Now, Status = "Placed" };
+        order.Lines.Add(new Anemic.OrderLine(2001, -3, Anemic.Money.Create(19.99m, "USD")));
+        order.Lines.Add(new Anemic.OrderLine(0, 1, Anemic.Money.Create(5.00m, "USD")));
+        order.Lines.Add(new Anemic.OrderLine(2001, 2, Anemic.Money.Create(19.99m, "USD")));
+
+        var negative = Anemic.Money.Create(-42.50m, "USD");
+        var mixed = Anemic.Money.Create(19.99m, "USD").Add(Anemic.Money.Create(25.00m, "EUR"));
+
+        var rows = order.Lines
+            .Select(l => $"Product {l.ProductId,5}   Quantity {l.Quantity,3}   Line total {l.LineTotal.Amount,8}")
+            .ToList();
+        rows.Add($"Customer name: '{order.CustomerName}'");
+        rows.Add("");
+        rows.Add($"Money.Create(-42.50m):   {negative.Amount} {negative.Currency}");
+        rows.Add($"19.99 USD + 25.00 EUR:   {mixed.Amount} {mixed.Currency}");
+        rows.Add("");
+        rows.Add("Nothing checks the input, so every value is accepted.");
+
+        Console.Write(OutputHelpers.BoxedArrayWithTitle("Bad: Every Input Is Accepted", rows.ToArray()));
+    }
+
+    private static void Solution7GuardClausesRejectBadInput()
+    {
+        //TODO: Talk Step 7 — Delete the next line and uncomment the code below it
+        throw new NotImplementedException();
+        //var price = Domain.Money.Create(19.99m, "USD");
+        //var euros = Domain.Money.Create(25.00m, "EUR");
+        //
+        //Console.Write(OutputHelpers.BoxedArrayWithTitle(
+        //    "Good: Guard Clauses Reject Bad Input",
+        //    new[]
+        //    {
+        //        $"Quantity -3:          {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, -3, price) }))}",
+        //        $"Product 0:            {Attempt(() => Domain.Order.Place("Contoso", new[] { (0, 1, price) }))}",
+        //        $"Product 2001 twice:   {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, price), (2001, 2, price) }))}",
+        //        $"Blank customer:       {Attempt(() => Domain.Order.Place("", new[] { (2001, 1, price) }))}",
+        //        $"No lines:             {Attempt(() => Domain.Order.Place("Contoso", Array.Empty<(int, int, Domain.Money)>()))}",
+        //        $"Money.Create(-42.50): {Attempt(() => Domain.Money.Create(-42.50m, "USD"))}",
+        //        $"USD + EUR:            {Attempt(() => price.Add(euros))}",
+        //        "",
+        //        $"Valid order:          {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 2, price) }))}"
+        //    }
+        //));
     }
 
     private static string Attempt(Action action)
