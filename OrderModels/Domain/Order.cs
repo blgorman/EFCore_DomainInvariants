@@ -13,11 +13,9 @@ public class Order
 
     public string CustomerName { get; private set; } = string.Empty;
 
-    public List<OrderLine> Lines { get; private set; } = new();
 
-    //TODO: Talk Step 5 — Delete the Lines property above and uncomment the two lines below it
-    //private readonly List<OrderLine> _lines = new();
-    //public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
+    private readonly List<OrderLine> _lines = new();
+    public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
 
     private Order() { }
 
@@ -30,9 +28,7 @@ public class Order
 
         foreach (var (productId, quantity, unitPrice) in lines)
         {
-            //TODO: Talk Step 5 — Delete the next line and uncomment the line below it
-            order.Lines.Add(new OrderLine(productId, quantity, unitPrice));
-            //order.AddLine(productId, quantity, unitPrice);
+            order.AddLine(productId, quantity, unitPrice);
         }
 
         order.RecalculateTotal();
@@ -41,13 +37,10 @@ public class Order
 
     public void AddLine(int productId, int quantity, Money unitPrice)
     {
-        //TODO: Talk Step 5 — Uncomment the duplicate-product guard clause below
-        //if (_lines.Any(orderLine => orderLine.ProductId == productId)) throw new InvalidOperationException($"Product {productId} is already on this order.");
+        if (_lines.Any(orderLine => orderLine.ProductId == productId)) throw new InvalidOperationException($"Product {productId} is already on this order.");
 
-        //TODO: Talk Step 5 — Delete the next line and uncomment the two lines below it
-        throw new NotImplementedException();
-        //_lines.Add(new OrderLine(productId, quantity, unitPrice));
-        //RecalculateTotal();
+        _lines.Add(new OrderLine(productId, quantity, unitPrice));
+        RecalculateTotal();
     }
 
     public void Process()

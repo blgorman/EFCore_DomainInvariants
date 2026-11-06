@@ -47,8 +47,7 @@ public class TalkDbContext : DbContext
 
             orderBuilder.HasMany(order => order.Lines).WithOne().HasForeignKey("OrderId");
 
-            //TODO: Talk Step 5 — Uncomment the line below
-            //orderBuilder.Navigation(order => order.Lines).HasField("_lines").UsePropertyAccessMode(PropertyAccessMode.Field);
+            orderBuilder.Navigation(order => order.Lines).HasField("_lines").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
         modelBuilder.Entity<Domain.OrderLine>(orderLineBuilder =>

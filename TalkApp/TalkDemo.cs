@@ -398,47 +398,45 @@ public static class TalkDemo
     // Solution: _lines is private, Lines is read-only, and AddLine is the one path that adds a line and recalculates Total.
     private static async Task Solution5AddLineKeepsTotalInStepAsync(DbContextOptions<TalkDbContext> options)
     {
-        //TODO: Talk Step 5 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //// The order starts with one 10.00 USD line and a Total of 10.00 USD.
-        //var placedOrder = Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(10.00m, "USD")) });
-        //var totalBeforeAddLine = placedOrder.Total;
-        //
-        //// AddLine adds the line and recalculates, so Total moves to 20.00 USD.
-        //placedOrder.AddLine(2002, 2, Domain.Money.Create(5.00m, "USD"));
-        //
-        //// Save the order through EF Core.
-        //await using (var context = new TalkDbContext(options))
-        //{
-        //    context.DomainOrders.Add(placedOrder);
-        //    await context.SaveChangesAsync();
-        //}
-        //
-        //// A new DbContext reloads the order. EF Core fills the _lines field named by HasField.
-        //await using (var context = new TalkDbContext(options))
-        //{
-        //    var reloadedOrder = await context.DomainOrders.Include(savedOrder => savedOrder.Lines).SingleAsync(savedOrder => savedOrder.Id == placedOrder.Id);
-        //    var linePrice = Domain.Money.Create(19.99m, "USD");
-        //
-        //    Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //        "Good: AddLine Keeps Total in Step",
-        //        new[]
-        //        {
-        //            $"Before AddLine:      Lines: 1   Total: {totalBeforeAddLine}",
-        //            $"After AddLine:       Lines: {placedOrder.Lines.Count}   Total: {placedOrder.Total}",
-        //            $"Saved and reloaded:  Lines: {reloadedOrder.Lines.Count}   Total: {reloadedOrder.Total}",
-        //            "",
-        //            // Each Attempt hits a line guard: quantity -3, product 0, and product 2001 twice.
-        //            $"Quantity -3:         {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, -3, linePrice) }))}",
-        //            $"Product 0:           {Attempt(() => Domain.Order.Place("Contoso", new[] { (0, 1, linePrice) }))}",
-        //            $"Product 2001 twice:  {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, linePrice), (2001, 2, linePrice) }))}",
-        //            "",
-        //            "EF Core filled _lines, the field named by HasField(\"_lines\").",
-        //            "placedOrder.Lines.Add(...) and placedOrder.Lines.Clear() no longer compile.",
-        //            "new OrderLine(...) no longer compiles outside the model."
-        //        }
-        //    ));
-        //}
+        // The order starts with one 10.00 USD line and a Total of 10.00 USD.
+        var placedOrder = Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(10.00m, "USD")) });
+        var totalBeforeAddLine = placedOrder.Total;
+        
+        // AddLine adds the line and recalculates, so Total moves to 20.00 USD.
+        placedOrder.AddLine(2002, 2, Domain.Money.Create(5.00m, "USD"));
+        
+        // Save the order through EF Core.
+        await using (var context = new TalkDbContext(options))
+        {
+            context.DomainOrders.Add(placedOrder);
+            await context.SaveChangesAsync();
+        }
+        
+        // A new DbContext reloads the order. EF Core fills the _lines field named by HasField.
+        await using (var context = new TalkDbContext(options))
+        {
+            var reloadedOrder = await context.DomainOrders.Include(savedOrder => savedOrder.Lines).SingleAsync(savedOrder => savedOrder.Id == placedOrder.Id);
+            var linePrice = Domain.Money.Create(19.99m, "USD");
+        
+            Console.Write(OutputHelpers.BoxedArrayWithTitle(
+                "Good: AddLine Keeps Total in Step",
+                new[]
+                {
+                    $"Before AddLine:      Lines: 1   Total: {totalBeforeAddLine}",
+                    $"After AddLine:       Lines: {placedOrder.Lines.Count}   Total: {placedOrder.Total}",
+                    $"Saved and reloaded:  Lines: {reloadedOrder.Lines.Count}   Total: {reloadedOrder.Total}",
+                    "",
+                    // Each Attempt hits a line guard: quantity -3, product 0, and product 2001 twice.
+                    $"Quantity -3:         {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, -3, linePrice) }))}",
+                    $"Product 0:           {Attempt(() => Domain.Order.Place("Contoso", new[] { (0, 1, linePrice) }))}",
+                    $"Product 2001 twice:  {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, linePrice), (2001, 2, linePrice) }))}",
+                    "",
+                    "EF Core filled _lines, the field named by HasField(\"_lines\").",
+                    "placedOrder.Lines.Add(...) and placedOrder.Lines.Clear() no longer compile.",
+                    "new OrderLine(...) no longer compiles outside the model."
+                }
+            ));
+        }
     }
 
     // Runs a call that should be rejected and returns the guard message, so the demo prints the rejection instead of crashing.
