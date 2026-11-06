@@ -39,13 +39,11 @@ public class TalkDbContext : DbContext
 
             orderBuilder.Property(order => order.Status).HasConversion<string>().HasMaxLength(20);
 
-            //TODO: Talk Step 4 — Delete the next line and uncomment the five lines below it
-            orderBuilder.Property(order => order.Total).HasPrecision(18, 2);
-            //orderBuilder.OwnsOne(order => order.Total, moneyBuilder =>
-            //{
-            //    moneyBuilder.Property(moneyValue => moneyValue.Amount).HasColumnName("Total_Amount").HasPrecision(18, 2);
-            //    moneyBuilder.Property(moneyValue => moneyValue.Currency).HasColumnName("Total_Currency").HasMaxLength(10);
-            //});
+            orderBuilder.OwnsOne(order => order.Total, moneyBuilder =>
+            {
+                moneyBuilder.Property(moneyValue => moneyValue.Amount).HasColumnName("Total_Amount").HasPrecision(18, 2);
+                moneyBuilder.Property(moneyValue => moneyValue.Currency).HasColumnName("Total_Currency").HasMaxLength(10);
+            });
 
             orderBuilder.HasMany(order => order.Lines).WithOne().HasForeignKey("OrderId");
 

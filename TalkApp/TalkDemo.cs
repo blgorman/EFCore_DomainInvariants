@@ -318,45 +318,43 @@ public static class TalkDemo
     // Solution: Total is a Money value object, so it carries a currency, and the Money guards reject bad values.
     private static async Task Solution4TotalIsMoneyAsync(DbContextOptions<TalkDbContext> options)
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //// Two USD lines. RecalculateTotal adds the line totals with Money.Add, so Total is 59.97 USD.
-        //var placedOrder = Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")), (2002, 2, Domain.Money.Create(19.99m, "USD")) });
-        //
-        //// Save the order. OwnsOne stores Total in the Total_Amount and Total_Currency columns.
-        //await using (var context = new TalkDbContext(options))
-        //{
-        //    context.DomainOrders.Add(placedOrder);
-        //    await context.SaveChangesAsync();
-        //}
-        //
-        //// A new DbContext reloads the order, and Total comes back as Money.
-        //await using (var context = new TalkDbContext(options))
-        //{
-        //    var reloadedOrder = await context.DomainOrders.SingleAsync(savedOrder => savedOrder.Id == placedOrder.Id);
-        //    // Raw SQL reads the two columns directly, which proves SQL Server holds the currency.
-        //    var savedTotalColumns = await context.Database
-        //        .SqlQueryRaw<string>("SELECT CONCAT('Total_Amount ', Total_Amount, ', Total_Currency ', Total_Currency) AS Value FROM DomainOrders WHERE Id = {0}", placedOrder.Id)
-        //        .SingleAsync();
-        //
-        //    Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //        "Good: Total Is Money",
-        //        new[]
-        //        {
-        //            $"Total type:          {placedOrder.Total.GetType().Name}",
-        //            $"Order total:         {placedOrder.Total}",
-        //            $"Saved and reloaded:  {reloadedOrder.Total}",
-        //            $"SQL Server columns:  {savedTotalColumns}",
-        //            "",
-        //            // Each Attempt hits a Money guard: a negative amount, USD plus EUR, and an order with both currencies.
-        //            $"Money.Create(-42.50):  {Attempt(() => Domain.Money.Create(-42.50m, "USD"))}",
-        //            $"USD + EUR:             {Attempt(() => Domain.Money.Create(19.99m, "USD").Add(Domain.Money.Create(25.00m, "EUR")))}",
-        //            $"USD and EUR lines:     {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")), (2002, 1, Domain.Money.Create(25.00m, "EUR")) }))}",
-        //            "",
-        //            "placedOrder.Total = -42.50m no longer compiles."
-        //        }
-        //    ));
-        //}
+        // Two USD lines. RecalculateTotal adds the line totals with Money.Add, so Total is 59.97 USD.
+        var placedOrder = Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")), (2002, 2, Domain.Money.Create(19.99m, "USD")) });
+        
+        // Save the order. OwnsOne stores Total in the Total_Amount and Total_Currency columns.
+        await using (var context = new TalkDbContext(options))
+        {
+            context.DomainOrders.Add(placedOrder);
+            await context.SaveChangesAsync();
+        }
+        
+        // A new DbContext reloads the order, and Total comes back as Money.
+        await using (var context = new TalkDbContext(options))
+        {
+            var reloadedOrder = await context.DomainOrders.SingleAsync(savedOrder => savedOrder.Id == placedOrder.Id);
+            // Raw SQL reads the two columns directly, which proves SQL Server holds the currency.
+            var savedTotalColumns = await context.Database
+                .SqlQueryRaw<string>("SELECT CONCAT('Total_Amount ', Total_Amount, ', Total_Currency ', Total_Currency) AS Value FROM DomainOrders WHERE Id = {0}", placedOrder.Id)
+                .SingleAsync();
+        
+            Console.Write(OutputHelpers.BoxedArrayWithTitle(
+                "Good: Total Is Money",
+                new[]
+                {
+                    $"Total type:          {placedOrder.Total.GetType().Name}",
+                    $"Order total:         {placedOrder.Total}",
+                    $"Saved and reloaded:  {reloadedOrder.Total}",
+                    $"SQL Server columns:  {savedTotalColumns}",
+                    "",
+                    // Each Attempt hits a Money guard: a negative amount, USD plus EUR, and an order with both currencies.
+                    $"Money.Create(-42.50):  {Attempt(() => Domain.Money.Create(-42.50m, "USD"))}",
+                    $"USD + EUR:             {Attempt(() => Domain.Money.Create(19.99m, "USD").Add(Domain.Money.Create(25.00m, "EUR")))}",
+                    $"USD and EUR lines:     {Attempt(() => Domain.Order.Place("Contoso", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")), (2002, 1, Domain.Money.Create(25.00m, "EUR")) }))}",
+                    "",
+                    "placedOrder.Total = -42.50m no longer compiles."
+                }
+            ));
+        }
     }
 
     // Step 5: the backing field, AddLine, HasField, and the line guard clauses

@@ -6,10 +6,8 @@ public class Order
 
     public OrderStatus Status { get; private set; }
 
-    public decimal Total { get; private set; }
 
-    //TODO: Talk Step 4 — Delete the Total property above and uncomment the line below it
-    //public Money Total { get; private set; } = null!;
+    public Money Total { get; private set; } = null!;
 
     public DateTime OrderDate { get; private set; }
 
@@ -82,10 +80,8 @@ public class Order
 
     private void RecalculateTotal()
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the three lines below it
-        Total = Lines.Sum(orderLine => orderLine.LineTotal.Amount);
-        //Total = Lines
-        //    .Select(orderLine => orderLine.LineTotal)
-        //    .Aggregate((runningTotal, nextLineTotal) => runningTotal.Add(nextLineTotal));
+        Total = Lines
+            .Select(orderLine => orderLine.LineTotal)
+            .Aggregate((runningTotal, nextLineTotal) => runningTotal.Add(nextLineTotal));
     }
 }
