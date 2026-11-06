@@ -10,11 +10,12 @@ public class Order
     public OrderStatus Status { get; set; }
     //public OrderStatus Status { get; private set; }
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the three lines below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public decimal Total { get; set; }
-    ////TODO: Talk Step 4 — Delete the next line and uncomment the line below it
     //public decimal Total { get; private set; }
-    ////public Money Total { get; private set; } = null!;
+
+    //TODO: Talk Step 4 — Delete the Total property above and uncomment the line below it
+    //public Money Total { get; private set; } = null!;
 
     //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public DateTime OrderDate { get; set; }
@@ -24,12 +25,13 @@ public class Order
     public string CustomerName { get; set; } = string.Empty;
     //public string CustomerName { get; private set; } = string.Empty;
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the four lines below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public List<OrderLine> Lines { get; set; } = new();
-    ////TODO: Talk Step 5 — Delete the next line and uncomment the two lines below it
     //public List<OrderLine> Lines { get; private set; } = new();
-    ////private readonly List<OrderLine> _lines = new();
-    ////public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
+
+    //TODO: Talk Step 5 — Delete the Lines property above and uncomment the two lines below it
+    //private readonly List<OrderLine> _lines = new();
+    //public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
 
     //TODO: Talk Step 1 — Delete the next line and uncomment the line below it
     public Order() { }

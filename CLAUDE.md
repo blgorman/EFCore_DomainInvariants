@@ -24,9 +24,9 @@ public DateTime OrderDate { get; set; }
 //public DateTime OrderDate { get; private set; }
 ```
 
-- The live (bad) line is always directly after the TODO.
-- The TODO states the exact count: "the line", "the two lines", "the three lines", "the four lines", "the five lines", or "the code" (everything commented until the block ends).
-- A line that changes twice carries the later TODO double-commented (`////TODO`) inside the earlier block, so uncommenting the earlier block produces a normal `//TODO`.
+- The live (bad) line is directly after the TODO. The one exception is a property that changes in two steps (see below).
+- The TODO states the exact count: "the line", "the two lines", "the three lines", "the five lines", or "the code" (everything commented until the block ends).
+- A property that changes twice gets two separate blocks, one per step, with a blank line between them. The later TODO reads "Delete the X property above and uncomment...". Never nest one step's TODO inside another step's block. A `////` comment inside a single step's commented code is fine.
 - Each `TalkDemo` solution method starts with `throw new NotImplementedException();` under its TODO. The `TalkDemo` TODO is the last one applied for each step.
 - `Order.Place` works at step 0, as in the course starter, and every solution creates its order through `Place`. Step 1 makes the constructor private and adds the `Place` guards.
 - `OrderStatus` and `HasConversion<string>()` on `Status` exist at step 0, as in the course starter. There is no enum step.

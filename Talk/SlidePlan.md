@@ -274,7 +274,7 @@ public string CustomerName { get; private set; } = string.Empty;
 ```
 
 **Say:**
-"After step 2, each of the five properties has a private setter. Code inside the `Order` class, such as `Order.Place`, still sets `CustomerName`, `OrderDate`, and `Status`. Code outside the `Order` class can read the five properties and cannot assign them."
+"After step 2, each of these five properties and `Lines` has a private setter. Code inside the `Order` class, such as `Order.Place`, still sets `CustomerName`, `OrderDate`, and `Status`. Code outside the `Order` class can read these properties and cannot assign them."
 
 ---
 
@@ -645,7 +645,7 @@ AddLine keeps Total in step, and EF Core reloads both lines
 Step | Technique                  | What it prevents                               | Code that enforces it
 1    | Private constructor        | An order that skips Order.Place                | private Order(), EF Core materialization
 1    | Factory method             | Orders built with missing or invalid values    | Order.Place
-2    | Private setters            | Callers rewriting a placed order               | private set on five properties
+2    | Private setters            | Callers rewriting a placed order               | private set on six properties
 3    | Domain methods             | Shipping an unconfirmed or cancelled order     | Process, Confirm, Ship, Cancel
 4    | Money value object         | A total with no currency                       | Money, RecalculateTotal, OwnsOne
 5    | Read-only backing field    | A total that differs from the sum of the lines | _lines, AddLine, RecalculateTotal, HasField

@@ -1,6 +1,6 @@
 import re, sys, pathlib
 root, step = pathlib.Path(sys.argv[1]), sys.argv[2]
-words = {"line": 1, "two": 2, "three": 3, "four": 4, "five": 5}
+words = {"line": 1, "two": 2, "three": 3, "five": 5}
 todo = re.compile(r'^(\s*)//TODO: Talk Step ' + step + r' — (.*)$')
 def uncomment(s):
     i = s.index("//")
@@ -19,6 +19,11 @@ for f in root.rglob("*.cs"):
         if text.startswith("Delete the next line"):
             print(f"{f.name}: delete -> {lines[i].strip()}")
             i += 1
+        elif "property above" in text:
+            k = len(out) - 1
+            while not out[k].strip(): k -= 1
+            print(f"{f.name}: delete -> {out[k].strip()}")
+            del out[k]
         what = re.search(r"uncomment the (\w+)", text, re.I).group(1).lower()
         if what == "code":
             while i < len(lines) and lines[i].lstrip().startswith("//"):
