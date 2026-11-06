@@ -25,7 +25,7 @@ public DateTime OrderDate { get; set; }
 ```
 
 - The live (bad) line is always directly after the TODO.
-- The TODO states the exact count: "the line", "the two lines", "the three lines", "the five lines", or "the code" (everything commented until the block ends).
+- The TODO states the exact count: "the line", "the two lines", "the three lines", "the four lines", "the five lines", or "the code" (everything commented until the block ends).
 - A line that changes twice carries the later TODO double-commented (`////TODO`) inside the earlier block, so uncommenting the earlier block produces a normal `//TODO`.
 - Each `TalkDemo` solution method starts with `throw new NotImplementedException();` under its TODO. The `TalkDemo` TODO is the last one applied for each step.
 - `Order.Place` works at step 0, as in the course starter, and every solution creates its order through `Place`. Step 1 makes the constructor private and adds the `Place` guards.

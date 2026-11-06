@@ -1,6 +1,6 @@
 import re, sys, pathlib
 root, step = pathlib.Path(sys.argv[1]), sys.argv[2]
-words = {"line": 1, "two": 2, "three": 3, "five": 5}
+words = {"line": 1, "two": 2, "three": 3, "four": 4, "five": 5}
 todo = re.compile(r'^(\s*)//TODO: Talk Step ' + step + r' — (.*)$')
 def uncomment(s):
     i = s.index("//")
