@@ -16,50 +16,50 @@ public class TalkDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Anemic.Order>(order =>
+        modelBuilder.Entity<Anemic.Order>(orderBuilder =>
         {
-            order.ToTable("AnemicOrders");
-            order.Property(o => o.Total).HasPrecision(18, 2);
-            order.HasMany(o => o.Lines).WithOne().HasForeignKey("OrderId");
+            orderBuilder.ToTable("AnemicOrders");
+            orderBuilder.Property(order => order.Total).HasPrecision(18, 2);
+            orderBuilder.HasMany(order => order.Lines).WithOne().HasForeignKey("OrderId");
         });
 
-        modelBuilder.Entity<Anemic.OrderLine>(line =>
+        modelBuilder.Entity<Anemic.OrderLine>(orderLineBuilder =>
         {
-            line.ToTable("AnemicOrderLines");
-            line.OwnsOne(l => l.UnitPrice, money =>
+            orderLineBuilder.ToTable("AnemicOrderLines");
+            orderLineBuilder.OwnsOne(orderLine => orderLine.UnitPrice, moneyBuilder =>
             {
-                money.Property(m => m.Amount).HasColumnName("UnitPrice_Amount").HasPrecision(18, 2);
-                money.Property(m => m.Currency).HasColumnName("UnitPrice_Currency").HasMaxLength(10);
+                moneyBuilder.Property(moneyValue => moneyValue.Amount).HasColumnName("UnitPrice_Amount").HasPrecision(18, 2);
+                moneyBuilder.Property(moneyValue => moneyValue.Currency).HasColumnName("UnitPrice_Currency").HasMaxLength(10);
             });
         });
 
-        modelBuilder.Entity<Domain.Order>(order =>
+        modelBuilder.Entity<Domain.Order>(orderBuilder =>
         {
-            order.ToTable("DomainOrders");
+            orderBuilder.ToTable("DomainOrders");
 
-            order.Property(o => o.Status).HasConversion<string>().HasMaxLength(20);
+            orderBuilder.Property(order => order.Status).HasConversion<string>().HasMaxLength(20);
 
             //TODO: Talk Step 4 — Delete the next line and uncomment the five lines below it
-            order.Property(o => o.Total).HasPrecision(18, 2);
-            //order.OwnsOne(o => o.Total, money =>
+            orderBuilder.Property(order => order.Total).HasPrecision(18, 2);
+            //orderBuilder.OwnsOne(order => order.Total, moneyBuilder =>
             //{
-            //    money.Property(m => m.Amount).HasColumnName("Total_Amount").HasPrecision(18, 2);
-            //    money.Property(m => m.Currency).HasColumnName("Total_Currency").HasMaxLength(10);
+            //    moneyBuilder.Property(moneyValue => moneyValue.Amount).HasColumnName("Total_Amount").HasPrecision(18, 2);
+            //    moneyBuilder.Property(moneyValue => moneyValue.Currency).HasColumnName("Total_Currency").HasMaxLength(10);
             //});
 
-            order.HasMany(o => o.Lines).WithOne().HasForeignKey("OrderId");
+            orderBuilder.HasMany(order => order.Lines).WithOne().HasForeignKey("OrderId");
 
             //TODO: Talk Step 5 — Uncomment the line below
-            //order.Navigation(o => o.Lines).HasField("_lines").UsePropertyAccessMode(PropertyAccessMode.Field);
+            //orderBuilder.Navigation(order => order.Lines).HasField("_lines").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
-        modelBuilder.Entity<Domain.OrderLine>(line =>
+        modelBuilder.Entity<Domain.OrderLine>(orderLineBuilder =>
         {
-            line.ToTable("DomainOrderLines");
-            line.OwnsOne(l => l.UnitPrice, money =>
+            orderLineBuilder.ToTable("DomainOrderLines");
+            orderLineBuilder.OwnsOne(orderLine => orderLine.UnitPrice, moneyBuilder =>
             {
-                money.Property(m => m.Amount).HasColumnName("UnitPrice_Amount").HasPrecision(18, 2);
-                money.Property(m => m.Currency).HasColumnName("UnitPrice_Currency").HasMaxLength(10);
+                moneyBuilder.Property(moneyValue => moneyValue.Amount).HasColumnName("UnitPrice_Amount").HasPrecision(18, 2);
+                moneyBuilder.Property(moneyValue => moneyValue.Currency).HasColumnName("UnitPrice_Currency").HasMaxLength(10);
             });
         });
     }

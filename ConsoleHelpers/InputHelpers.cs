@@ -5,22 +5,22 @@ public class InputHelpers
     /// <summary>
     /// Gets a double input from the user
     /// <param name="prompt">The question to ask the user</param>
-    /// <param name="min">Inclusive minimum value [defaults to double.MinValue]</param>
-    /// <param name="max">Inclusive maximum value [defaults to double.MaxValue]</param>
-    /// <param name="confirm">Optional asks them to confirm their input</param> 
+    /// <param name="minimumValue">Inclusive minimum value [defaults to double.MinValue]</param>
+    /// <param name="maximumValue">Inclusive maximum value [defaults to double.MaxValue]</param>
+    /// <param name="requireConfirmation">Optional asks them to confirm their input</param> 
     /// <returns>The valid double in the range</returns>
     /// </summary>
-    public static double GetInputAsDouble(string prompt, double min = double.MinValue
-                                         , double max = double.MaxValue
-                                         , bool confirm = false)
+    public static double GetInputAsDouble(string prompt, double minimumValue = double.MinValue
+                                         , double maximumValue = double.MaxValue
+                                         , bool requireConfirmation = false)
     {
         bool success = false;
         double result = double.MinValue;
         while (!success)
         {
             Console.WriteLine(prompt);
-            string number = Console.ReadLine() ?? string.Empty;
-            success = double.TryParse(number, out result); 
+            string typedNumber = Console.ReadLine() ?? string.Empty;
+            success = double.TryParse(typedNumber, out result); 
             
             if (!success)
             {
@@ -28,14 +28,14 @@ public class InputHelpers
                 continue;
             }
 
-            if (result > max || result < min)
+            if (result > maximumValue || result < minimumValue)
             {
                 success = false;
-                Console.WriteLine($"Please enter a value within defined parameters {min}, {max}");
+                Console.WriteLine($"Please enter a value within defined parameters {minimumValue}, {maximumValue}");
                 continue;
             }
 
-            if (confirm)
+            if (requireConfirmation)
             {
                 // Console.WriteLine($"You entered {result}, is this correct? (Y/N)");
                 // string confirmation = Console.ReadLine() ?? string.Empty;
@@ -55,14 +55,14 @@ public class InputHelpers
     /// Gets an integer input from the user
     /// </summary>
     /// <param name="prompt">The question to ask the user</param>
-    /// <param name="min">min value to allow [defaults to int.MinValue]</param>
-    /// <param name="max">max value to allow [defaults to int.MaxValue]</param>
-    /// <param name="confirm">Allow hook to ask for confirmation of input</param>
+    /// <param name="minimumValue">min value to allow [defaults to int.MinValue]</param>
+    /// <param name="maximumValue">max value to allow [defaults to int.MaxValue]</param>
+    /// <param name="requireConfirmation">Allow hook to ask for confirmation of input</param>
     /// <returns>Valid integer input from the user</returns>
     public static int GetInputAsInt(string prompt, 
-                                    int min = int.MinValue, 
-                                    int max = int.MaxValue, 
-                                    bool confirm = false)
+                                    int minimumValue = int.MinValue, 
+                                    int maximumValue = int.MaxValue, 
+                                    bool requireConfirmation = false)
     {
         bool isValidInteger = false;
         int result = 0;
@@ -78,13 +78,13 @@ public class InputHelpers
                 continue;
             }
             
-            if (result < min || result > max)
+            if (result < minimumValue || result > maximumValue)
             {
-                Console.WriteLine($"Please enter a value within defined parameters {min}, {max}");
+                Console.WriteLine($"Please enter a value within defined parameters {minimumValue}, {maximumValue}");
                 continue;
             }
             
-            if (confirm)
+            if (requireConfirmation)
             {
                 string confirmationPrompt = $"You entered {result}, is this correct?";
                 isValidInteger = GetInputAsBool(confirmationPrompt, false);
@@ -102,10 +102,10 @@ public class InputHelpers
     /// Gets a boolean input from the user
     /// </summary>
     /// <param name="prompt">The question to ask the user</param>
-    /// <param name="confirm">Hook to allow user to validate their choice [optional]</param>
+    /// <param name="requireConfirmation">Hook to allow user to validate their choice [optional]</param>
     /// <returns>Choice of true/false from prompt</returns>
     public static bool GetInputAsBool(string prompt, 
-                                        bool confirm = false)
+                                        bool requireConfirmation = false)
     {
         bool startsWithN = false;
         bool startsWithY = false;
@@ -127,14 +127,14 @@ public class InputHelpers
             Console.WriteLine("invalid input");
         }
         
-        if(confirm)
+        if(requireConfirmation)
         { 
             string confirmationPrompt = ($"You entered {confirmation} are you sure?:");
             var correctInput = GetInputAsBool(confirmationPrompt, false);
 
             if (!correctInput)
             {
-                return GetInputAsBool(prompt, confirm);
+                return GetInputAsBool(prompt, requireConfirmation);
             }
         }
 
@@ -146,10 +146,10 @@ public class InputHelpers
     /// Ask the user for string input
     /// </summary>
     /// <param name="prompt">The question you want to ask</param>
-    /// <param name="confirm">Optional ability to confirm user input</param>
+    /// <param name="requireConfirmation">Optional ability to confirm user input</param>
     /// <param name="allowEmpty">Allow empty strings [defaults to true]</param>
     /// <returns>The string they entered and potentially confirmed</returns>
-    public static string GetInputAsString(string prompt, bool confirm = false, bool allowEmpty = true)
+    public static string GetInputAsString(string prompt, bool requireConfirmation = false, bool allowEmpty = true)
     {
         while(true)
         {
@@ -164,13 +164,13 @@ public class InputHelpers
             }
             
             // confirmation logic
-            if (confirm)
+            if (requireConfirmation)
             {
-                string promptConfirm = $"You entered {input}, is this correct";
-                correctInput = GetInputAsBool(promptConfirm, false);
+                string confirmationPrompt = $"You entered {input}, is this correct";
+                correctInput = GetInputAsBool(confirmationPrompt, false);
             }
 
-            if (correctInput || !confirm)
+            if (correctInput || !requireConfirmation)
             {
                 return input;
             }
@@ -179,10 +179,10 @@ public class InputHelpers
 
     public static void WaitForUserInput(ConsoleColor foreground)
     {
-        var prevColor = Console.ForegroundColor;    
+        var previousColor = Console.ForegroundColor;    
         Console.ForegroundColor = foreground;
         WaitForUserInput();
-        Console.ForegroundColor = prevColor;
+        Console.ForegroundColor = previousColor;
     }
 
     public static void WaitForUserInput()

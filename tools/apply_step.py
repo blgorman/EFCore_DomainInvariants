@@ -1,36 +1,36 @@
 import re, sys, pathlib
-root, step = pathlib.Path(sys.argv[1]), sys.argv[2]
-words = {"line": 1, "two": 2, "three": 3, "five": 5}
-todo = re.compile(r'^(\s*)//TODO: Talk Step ' + step + r' — (.*)$')
-def uncomment(s):
-    i = s.index("//")
-    return s[:i] + s[i+2:]
-for f in root.rglob("*.cs"):
-    if "bin" in f.parts or "obj" in f.parts: continue
-    lines = f.read_text(encoding="utf-8").split("\n")
-    out, i, changed = [], 0, False
-    while i < len(lines):
-        m = todo.match(lines[i])
-        if not m:
-            out.append(lines[i]); i += 1; continue
-        changed = True
-        text = m.group(2)
-        i += 1
-        if text.startswith("Delete the next line"):
-            print(f"{f.name}: delete -> {lines[i].strip()}")
-            i += 1
-        elif "property above" in text:
-            k = len(out) - 1
-            while not out[k].strip(): k -= 1
-            print(f"{f.name}: delete -> {out[k].strip()}")
-            del out[k]
-        what = re.search(r"uncomment the (\w+)", text, re.I).group(1).lower()
-        if what == "code":
-            while i < len(lines) and lines[i].lstrip().startswith("//"):
-                out.append(uncomment(lines[i])); i += 1
+root_folder, step_number = pathlib.Path(sys.argv[1]), sys.argv[2]
+line_counts_by_word = {"line": 1, "two": 2, "three": 3, "five": 5}
+todo_pattern = re.compile(r'^(\s*)//TODO: Talk Step ' + step_number + r' — (.*)$')
+def uncomment(source_line):
+    comment_start = source_line.index("//")
+    return source_line[:comment_start] + source_line[comment_start+2:]
+for source_file in root_folder.rglob("*.cs"):
+    if "bin" in source_file.parts or "obj" in source_file.parts: continue
+    source_lines = source_file.read_text(encoding="utf-8").split("\n")
+    output_lines, line_index, file_changed = [], 0, False
+    while line_index < len(source_lines):
+        todo_match = todo_pattern.match(source_lines[line_index])
+        if not todo_match:
+            output_lines.append(source_lines[line_index]); line_index += 1; continue
+        file_changed = True
+        todo_text = todo_match.group(2)
+        line_index += 1
+        if todo_text.startswith("Delete the next line"):
+            print(f"{source_file.name}: delete -> {source_lines[line_index].strip()}")
+            line_index += 1
+        elif "property above" in todo_text:
+            property_index = len(output_lines) - 1
+            while not output_lines[property_index].strip(): property_index -= 1
+            print(f"{source_file.name}: delete -> {output_lines[property_index].strip()}")
+            del output_lines[property_index]
+        count_word = re.search(r"uncomment the (\w+)", todo_text, re.I).group(1).lower()
+        if count_word == "code":
+            while line_index < len(source_lines) and source_lines[line_index].lstrip().startswith("//"):
+                output_lines.append(uncomment(source_lines[line_index])); line_index += 1
         else:
-            n = words.get(what, 1)
-            for _ in range(n):
-                out.append(uncomment(lines[i])); i += 1
-    if changed:
-        f.write_text("\n".join(out), encoding="utf-8")
+            line_count = line_counts_by_word.get(count_word, 1)
+            for _ in range(line_count):
+                output_lines.append(uncomment(source_lines[line_index])); line_index += 1
+    if file_changed:
+        source_file.write_text("\n".join(output_lines), encoding="utf-8")

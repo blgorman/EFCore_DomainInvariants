@@ -132,7 +132,7 @@ The public constructor lets any caller skip Order.Place.
 ```
 OrderModels/Anemic
 
-var order = new Order { Status = "Banana", Total = -99.99m };
+var invalidOrder = new Order { Status = "Banana", Total = -99.99m };
 
 // Saved and reloaded through EF Core:
 // Customer: ''   Status: 'Banana'   Order date: 1/1/0001
@@ -236,7 +236,7 @@ No public Order(), and Order.Place rejects a bad order
 
 ## Slide 12 — Private Setters: The Problem
 
-**Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: three properties and the three assignments from `TalkDemo.cs`, with one plain-text line below the panel.
+**Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: three properties and the three assignments from `TalkDemo.cs`, with one plain-text line below the panel. The `Sum` call is wrapped to fit the panel.
 
 **Text on slide (verbatim, shown all at once):**
 ```
@@ -305,8 +305,8 @@ Order.Place sets every property, and no outside caller can
 **Text on slide (verbatim, revealed one at a time):**
 ```
 OrderModels/Anemic
-order.Status = "Shipped";        // a Placed order, never confirmed
-cancelled.Status = "Shipped";    // a Cancelled order
+shippedOrder.Status = "Shipped";    // a Placed order, never confirmed
+cancelledOrder.Status = "Shipped";  // a Cancelled order, shipped
 
 OrderModels/Domain, after Step 2
 order.Status = OrderStatus.Shipped;   // no longer compiles
@@ -369,7 +369,7 @@ Ship() rejects a Placed order and a Cancelled order
 
 ## Slide 18 — Value Object: The Problem
 
-**Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the `Total` property, the sum from `TalkDemo.cs`, and the printed results as comments, with one plain-text line below the panel.
+**Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the `Total` property, the sum from `TalkDemo.cs`, and the printed results as comments, with one plain-text line below the panel. The `Sum` call is wrapped to fit the panel.
 
 **Text on slide (verbatim, shown all at once):**
 ```
@@ -378,7 +378,8 @@ OrderModels/Anemic
 public decimal Total { get; set; }
 
 // Line 1: 19.99 USD    Line 2: 25.00 EUR
-order.Total = order.Lines.Sum(l => l.LineTotal.Amount);
+order.Total = order.Lines
+    .Sum(orderLine => orderLine.LineTotal.Amount);
 // Total: 44.99   (dollars? euros?)
 
 A decimal Total has no currency.
@@ -420,7 +421,9 @@ public Money Total { get; private set; } = null!;
 
 private void RecalculateTotal()
 {
-    Total = Lines.Select(l => l.LineTotal).Aggregate((sum, next) => sum.Add(next));
+    Total = Lines
+        .Select(orderLine => orderLine.LineTotal)
+        .Aggregate((runningTotal, nextLineTotal) => runningTotal.Add(nextLineTotal));
 }
 ```
 
@@ -431,16 +434,18 @@ private void RecalculateTotal()
 
 ## Slide 21 — Mapping Money with OwnsOne
 
-**Layout:** Title Only layout. Code panel labeled `TalkApp/Data/TalkDbContext.cs`, after Step 4, with one plain-text line below the panel.
+**Layout:** Title Only layout. Code panel labeled `TalkApp/Data/TalkDbContext.cs`, after Step 4, with one plain-text line below the panel. Each `Property` call is wrapped to fit the panel.
 
 **Text on slide (verbatim, shown all at once):**
 ```
 TalkApp/Data/TalkDbContext.cs, after Step 4
 
-order.OwnsOne(o => o.Total, money =>
+orderBuilder.OwnsOne(order => order.Total, moneyBuilder =>
 {
-    money.Property(m => m.Amount).HasColumnName("Total_Amount").HasPrecision(18, 2);
-    money.Property(m => m.Currency).HasColumnName("Total_Currency").HasMaxLength(10);
+    moneyBuilder.Property(moneyValue => moneyValue.Amount)
+        .HasColumnName("Total_Amount").HasPrecision(18, 2);
+    moneyBuilder.Property(moneyValue => moneyValue.Currency)
+        .HasColumnName("Total_Currency").HasMaxLength(10);
 });
 
 Total_Amount and Total_Currency are two columns on the DomainOrders table.
@@ -539,7 +544,9 @@ public void AddLine(int productId, int quantity, Money unitPrice)
 
 private void RecalculateTotal()
 {
-    Total = Lines.Select(l => l.LineTotal).Aggregate((sum, next) => sum.Add(next));
+    Total = Lines
+        .Select(orderLine => orderLine.LineTotal)
+        .Aggregate((runningTotal, nextLineTotal) => runningTotal.Add(nextLineTotal));
 }
 
 // OrderLine.cs
@@ -559,7 +566,7 @@ internal OrderLine(int productId, int quantity, Money unitPrice)
 ```
 TalkApp/Data/TalkDbContext.cs, after Step 5
 
-order.Navigation(o => o.Lines)
+orderBuilder.Navigation(order => order.Lines)
     .HasField("_lines")
     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -601,7 +608,7 @@ Nothing checks the lines, so every line is accepted.
 OrderModels/Domain, after Step 5
 
 // Order.AddLine
-if (_lines.Any(l => l.ProductId == productId))
+if (_lines.Any(orderLine => orderLine.ProductId == productId))
     throw new InvalidOperationException($"Product {productId} is already on this order.");
 
 // OrderLine constructor

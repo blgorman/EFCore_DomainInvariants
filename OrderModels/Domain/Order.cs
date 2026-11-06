@@ -59,7 +59,7 @@ public class Order
     public void AddLine(int productId, int quantity, Money unitPrice)
     {
         //TODO: Talk Step 5 — Uncomment the duplicate-product guard clause below
-        //if (_lines.Any(l => l.ProductId == productId)) throw new InvalidOperationException($"Product {productId} is already on this order.");
+        //if (_lines.Any(orderLine => orderLine.ProductId == productId)) throw new InvalidOperationException($"Product {productId} is already on this order.");
 
         //TODO: Talk Step 5 — Delete the next line and uncomment the two lines below it
         throw new NotImplementedException();
@@ -105,8 +105,10 @@ public class Order
 
     private void RecalculateTotal()
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the line below it
-        Total = Lines.Sum(l => l.LineTotal.Amount);
-        //Total = Lines.Select(l => l.LineTotal).Aggregate((sum, next) => sum.Add(next));
+        //TODO: Talk Step 4 — Delete the next line and uncomment the three lines below it
+        Total = Lines.Sum(orderLine => orderLine.LineTotal.Amount);
+        //Total = Lines
+        //    .Select(orderLine => orderLine.LineTotal)
+        //    .Aggregate((runningTotal, nextLineTotal) => runningTotal.Add(nextLineTotal));
     }
 }

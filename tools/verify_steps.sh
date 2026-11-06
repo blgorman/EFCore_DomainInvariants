@@ -12,9 +12,9 @@ rm -rf "$SIM"/*/bin "$SIM"/*/obj
 cd "$SIM"
 
 echo "== STEP 0: $(dotnet build TalkApp -a x64 -v q 2>&1 | grep -E 'error CS|warning CS|rror\(s\)' | sort -u | tr '\n' ' ')"
-for n in 1 2 3 4 5; do
-  python "$REPO/tools/apply_step.py" . "$n" > /dev/null
-  echo "== STEP $n: $(dotnet build TalkApp -a x64 -v q 2>&1 | grep -E 'error CS|warning CS|rror\(s\)' | sort -u | tr '\n' ' ')"
+for step_number in 1 2 3 4 5; do
+  python "$REPO/tools/apply_step.py" . "$step_number" > /dev/null
+  echo "== STEP $step_number: $(dotnet build TalkApp -a x64 -v q 2>&1 | grep -E 'error CS|warning CS|rror\(s\)' | sort -u | tr '\n' ' ')"
 done
 
 echo "== LEFTOVER TODOS (expect only the two NTI box strings in TalkDemo.cs)"

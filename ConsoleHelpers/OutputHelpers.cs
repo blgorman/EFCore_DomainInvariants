@@ -16,22 +16,22 @@ public class OutputHelpers
     {
         string separatorString = new string(borderChar, lineLength);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder outputBuilder = new StringBuilder();
         //border top
-        sb.AppendLine(separatorString);
+        outputBuilder.AppendLine(separatorString);
 
         //left indicator 
         var borderIndicator = borderChar == '*' ? "*" : "|";
-        sb.Append(borderIndicator);
+        outputBuilder.Append(borderIndicator);
         //message + spaces? 
         var actualDataString = $" {message}".PadRight(lineLength - 2, ' ');
-        sb.Append($"{actualDataString}");
+        outputBuilder.Append($"{actualDataString}");
         //right indicator
-        sb.AppendLine(borderIndicator);
+        outputBuilder.AppendLine(borderIndicator);
         //border bottom
-        sb.AppendLine(separatorString);
+        outputBuilder.AppendLine(separatorString);
         //return the formatted message;
-        return sb.ToString();
+        return outputBuilder.ToString();
     }
 
     //output a string to the console in a box with a header
@@ -47,20 +47,20 @@ public class OutputHelpers
         string separatorDashes = $"*{new string('-', lineLength - 2)}*";
         string separatorStars = new string('*', lineLength);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder outputBuilder = new StringBuilder();
 
-        sb.Append(BoxedMessage(title, '*'));
+        outputBuilder.Append(BoxedMessage(title, '*'));
 
         //message top
-        sb.AppendLine(separatorDashes);
+        outputBuilder.AppendLine(separatorDashes);
         //message indicator + message + spaces + message indicator
         var actualDataString = $"* {message}".PadRight(lineLength - 1, ' ');
-        sb.AppendLine($"{actualDataString}*");
+        outputBuilder.AppendLine($"{actualDataString}*");
         //message bottom
-        sb.AppendLine(separatorDashes);
-        sb.AppendLine(separatorStars);
+        outputBuilder.AppendLine(separatorDashes);
+        outputBuilder.AppendLine(separatorStars);
 
-        return sb.ToString();
+        return outputBuilder.ToString();
     }
 
     //output a string to the console in a box with a header
@@ -85,31 +85,31 @@ public class OutputHelpers
         string separatorDashes = $"*{new string('-', lineLength - 2)}*";
         string separatorStars = new string('*', lineLength);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder outputBuilder = new StringBuilder();
 
-        sb.Append(BoxedMessage(title, '*'));
+        outputBuilder.Append(BoxedMessage(title, '*'));
 
         //** each item needs to print here
-        int i = 0;
+        int itemNumber = 0;
         foreach (var item in items)
         {
-            i++;
+            itemNumber++;
             //message top
-            //sb.AppendLine(separatorDashes);
+            //outputBuilder.AppendLine(separatorDashes);
             //message indicator + message + spaces + message indicator
             var actualDataString = $"* {item}".PadRight(lineLength - 1, ' ');
-            sb.AppendLine($"{actualDataString}*");
+            outputBuilder.AppendLine($"{actualDataString}*");
             //message bottom
-            if (i < items.Length)
+            if (itemNumber < items.Length)
             {
-                sb.AppendLine(separatorDashes);
+                outputBuilder.AppendLine(separatorDashes);
             }
         }
 
         //close the box
-        sb.AppendLine(separatorStars);
+        outputBuilder.AppendLine(separatorStars);
 
-        return sb.ToString();
+        return outputBuilder.ToString();
 
     }
 
@@ -127,19 +127,19 @@ public class OutputHelpers
         string separatorString = new string(borderChar, lineLength);
         var borderIndicator = borderChar == '*' ? "*" : "|";
 
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine(separatorString);
+        StringBuilder outputBuilder = new StringBuilder();
+        outputBuilder.AppendLine(separatorString);
 
         foreach (var item in items)
         {
-            sb.Append(borderIndicator);
+            outputBuilder.Append(borderIndicator);
             var actualDataString = $" {item}".PadRight(lineLength - 2, ' ');
-            sb.Append(actualDataString);
-            sb.AppendLine(borderIndicator);
+            outputBuilder.Append(actualDataString);
+            outputBuilder.AppendLine(borderIndicator);
         }
 
-        sb.AppendLine(separatorString);
-        return sb.ToString();
+        outputBuilder.AppendLine(separatorString);
+        return outputBuilder.ToString();
     }
 
     //output a list to the console in a box with a header
@@ -162,24 +162,24 @@ public class OutputHelpers
         string separatorDashes = $"*{new string('-', lineLength - 2)}*";
         string separatorStars = new string('*', lineLength);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder outputBuilder = new StringBuilder();
 
-        sb.Append(BoxedMessage(title, '*'));
+        outputBuilder.Append(BoxedMessage(title, '*'));
 
-        int i = 0;
+        int itemNumber = 0;
         foreach (var item in items)
         {
-            i++;
+            itemNumber++;
             var actualDataString = $"* {item}".PadRight(lineLength - 1, ' ');
-            sb.AppendLine($"{actualDataString}*");
-            if (i < items.Count)
+            outputBuilder.AppendLine($"{actualDataString}*");
+            if (itemNumber < items.Count)
             {
-                sb.AppendLine(separatorDashes);
+                outputBuilder.AppendLine(separatorDashes);
             }
         }
 
-        sb.AppendLine(separatorStars);
-        return sb.ToString();
+        outputBuilder.AppendLine(separatorStars);
+        return outputBuilder.ToString();
     }
 
     public static string SectionBanner(string label, int lineLength = 80)
@@ -191,10 +191,10 @@ public class OutputHelpers
 
     public static void WriteColored(string text, ConsoleColor foreground = ConsoleColor.Gray)
     {
-        var prevColor = Console.ForegroundColor;
+        var previousColor = Console.ForegroundColor;
         Console.ForegroundColor = foreground;
         Console.Write(text);
-        Console.ForegroundColor = prevColor;
+        Console.ForegroundColor = previousColor;
     }
 
 }

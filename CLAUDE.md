@@ -105,3 +105,13 @@ Use `/talk-script-cleanup` to fix a flagged line in either file. Use `/talk-veri
 - **One finding, one sentence.** Report a defect plainly; no fix menus.
 - **Yes/no means yes/no.** No "you're right". Don't append unrequested findings.
 - **No em dashes in narration or slide text.** (The `//TODO` comments use them; that's code, not narration.)
+
+---
+
+## Variable Names (Brian's rule, do not regress)
+
+- **Never name a variable after a method or a keyword,** even when only the case differs. `sum` next to `Sum()` is the example that caused this rule. `runningTotal` is the fix.
+- **A variable name states what the variable holds.** No one-letter names, including lambda parameters (`orderLine => orderLine.LineTotal`, never `l => l.LineTotal`), and no abbreviations (`caughtException`, never `ex`). If there is any doubt, use a longer, more descriptive name.
+- **A name must match the type it holds.** An EF Core builder is `orderBuilder`, never `order`.
+- **One order in a code block can be `order`.** Two or more orders each get a descriptive name, such as `shippedOrder` and `cancelledOrder`.
+- **Brian's accepted exceptions:** a single `var order = new Order()`, and a parameter that matches a property by name, such as `CustomerName = customerName`.

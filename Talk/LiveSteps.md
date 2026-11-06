@@ -40,7 +40,7 @@
 | | `OrderModels/Domain/Money.cs` | 16 | `Create`: uncomment 2 guards | `Money.Create(-42.50m, "USD")` is accepted, and so is a blank currency. (19, 22) |  |
 | | `OrderModels/Domain/Money.cs` | 24 | `Add`: uncomment currency guard | 19.99 USD plus 25.00 EUR returns 44.99 USD. (19) |  |
 | | `OrderModels/Domain/Order.cs` | 11 | Delete `decimal Total` above the TODO, uncomment `Money Total` | A decimal `Total` has no currency. (18) |  |
-| | `OrderModels/Domain/Order.cs` | 83 | `RecalculateTotal`: `Sum` → `Aggregate(... Add)` | `Sum` adds bare decimals, so USD and EUR mix without an error. (18) |  |
+| | `OrderModels/Domain/Order.cs` | 83 | `RecalculateTotal`: `Sum` → `Aggregate(... Add)` (uncomment 3 lines) | `Sum` adds bare decimals, so USD and EUR mix without an error. (18) |  |
 | | `TalkApp/Data/TalkDbContext.cs` | 42 | `HasPrecision` → `OwnsOne` (uncomment 5 lines) | The `Total` column in SQL Server holds a bare number with no currency. (18, 21) |  |
 | | `TalkApp/TalkDemo.cs` | 321 | `Solution4`: delete throw, uncomment code | Bad: 44.99 with no currency, -42.50 accepted, USD plus EUR accepted. Good: 59.97 USD reloads, and the bad cases are rejected. | **4** |
 | 24 | **Step 5 problem:** any caller can change `Lines`, and nothing recalculates `Total`. Lines sum to 20.00 with a total of 10.00. Zero lines still shows 10.00. | | | | |
