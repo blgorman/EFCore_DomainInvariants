@@ -135,53 +135,51 @@ public static class TalkDemo
     // Solution: Order.Place is the only way to create a domain Order, and its guards reject a bad order.
     private static async Task Solution1PrivateConstructorAndPlaceAsync(DbContextOptions<TalkDbContext> options)
     {
-        //TODO: Talk Step 1 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //// Order.Place sets the customer, date, status, lines, and total, so the order starts valid.
-        //var placedOrder = Domain.Order.Place("Contoso", new[]
-        //{
-        //    (2001, 2, Domain.Money.Create(19.99m, "USD")),
-        //    (2002, 1, Domain.Money.Create(5.00m, "USD"))
-        //});
-        //// Reflection looks for a public parameterless constructor. After step 1 there is none.
-        //var publicConstructor = typeof(Domain.Order).GetConstructor(Type.EmptyTypes);
-        //
-        //// Save the order through EF Core.
-        //await using (var context = new TalkDbContext(options))
-        //{
-        //    context.DomainOrders.Add(placedOrder);
-        //    await context.SaveChangesAsync();
-        //}
-        //
-        //// A new DbContext reloads the order. EF Core rebuilds the order through the private constructor.
-        //await using (var context = new TalkDbContext(options))
-        //{
-        //    var reloadedOrder = await context.DomainOrders.Include(savedOrder => savedOrder.Lines).SingleAsync(savedOrder => savedOrder.Id == placedOrder.Id);
-        //    // OrderLine has no OrderId property, so read the shadow foreign key from the change tracker.
-        //    var lineOrderId = context.Entry(reloadedOrder.Lines.First()).Property<int?>("OrderId").CurrentValue;
-        //
-        //    Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //        "Good: Order.Place Is the Only Way In",
-        //        new[]
-        //        {
-        //            $"Public Order() constructor:  {(publicConstructor is null ? "none" : "public")}",
-        //            "",
-        //            "Order.Place(\"Contoso\", two lines), saved and reloaded",
-        //            $"Customer:    {reloadedOrder.CustomerName}",
-        //            $"Status:      {reloadedOrder.Status}",
-        //            $"Order date:  {reloadedOrder.OrderDate:d}",
-        //            $"Lines:       {reloadedOrder.Lines.Count}",
-        //            $"Total:       {reloadedOrder.Total}",
-        //            "",
-        //            // Attempt calls Order.Place with bad input and prints the message from the guard.
-        //            $"Blank customer:  {Attempt(() => Domain.Order.Place("", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")) }))}",
-        //            $"No lines:        {Attempt(() => Domain.Order.Place("Contoso", Array.Empty<(int, int, Domain.Money)>()))}",
-        //            "",
-        //            "EF Core rebuilt the order through the private constructor.",
-        //            $"OrderLine has no OrderId property: shadow foreign key {lineOrderId}"
-        //        }
-        //    ));
-        //}
+        // Order.Place sets the customer, date, status, lines, and total, so the order starts valid.
+        var placedOrder = Domain.Order.Place("Contoso", new[]
+        {
+            (2001, 2, Domain.Money.Create(19.99m, "USD")),
+            (2002, 1, Domain.Money.Create(5.00m, "USD"))
+        });
+        // Reflection looks for a public parameterless constructor. After step 1 there is none.
+        var publicConstructor = typeof(Domain.Order).GetConstructor(Type.EmptyTypes);
+        
+        // Save the order through EF Core.
+        await using (var context = new TalkDbContext(options))
+        {
+            context.DomainOrders.Add(placedOrder);
+            await context.SaveChangesAsync();
+        }
+        
+        // A new DbContext reloads the order. EF Core rebuilds the order through the private constructor.
+        await using (var context = new TalkDbContext(options))
+        {
+            var reloadedOrder = await context.DomainOrders.Include(savedOrder => savedOrder.Lines).SingleAsync(savedOrder => savedOrder.Id == placedOrder.Id);
+            // OrderLine has no OrderId property, so read the shadow foreign key from the change tracker.
+            var lineOrderId = context.Entry(reloadedOrder.Lines.First()).Property<int?>("OrderId").CurrentValue;
+        
+            Console.Write(OutputHelpers.BoxedArrayWithTitle(
+                "Good: Order.Place Is the Only Way In",
+                new[]
+                {
+                    $"Public Order() constructor:  {(publicConstructor is null ? "none" : "public")}",
+                    "",
+                    "Order.Place(\"Contoso\", two lines), saved and reloaded",
+                    $"Customer:    {reloadedOrder.CustomerName}",
+                    $"Status:      {reloadedOrder.Status}",
+                    $"Order date:  {reloadedOrder.OrderDate:d}",
+                    $"Lines:       {reloadedOrder.Lines.Count}",
+                    $"Total:       {reloadedOrder.Total}",
+                    "",
+                    // Attempt calls Order.Place with bad input and prints the message from the guard.
+                    $"Blank customer:  {Attempt(() => Domain.Order.Place("", new[] { (2001, 1, Domain.Money.Create(19.99m, "USD")) }))}",
+                    $"No lines:        {Attempt(() => Domain.Order.Place("Contoso", Array.Empty<(int, int, Domain.Money)>()))}",
+                    "",
+                    "EF Core rebuilt the order through the private constructor.",
+                    $"OrderLine has no OrderId property: shadow foreign key {lineOrderId}"
+                }
+            ));
+        }
     }
 
     // Step 2: private setters

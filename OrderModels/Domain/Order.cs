@@ -33,15 +33,12 @@ public class Order
     //private readonly List<OrderLine> _lines = new();
     //public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
 
-    //TODO: Talk Step 1 — Delete the next line and uncomment the line below it
-    public Order() { }
-    //private Order() { }
+    private Order() { }
 
     public static Order Place(string customerName, IEnumerable<(int productId, int quantity, Money unitPrice)> lines)
     {
-        //TODO: Talk Step 1 — Uncomment the two guard clauses below
-        //if (string.IsNullOrWhiteSpace(customerName)) throw new ArgumentException("An order needs a customer name.", nameof(customerName));
-        //if (!lines.Any()) throw new ArgumentException("An order needs at least one line.", nameof(lines));
+        if (string.IsNullOrWhiteSpace(customerName)) throw new ArgumentException("An order needs a customer name.", nameof(customerName));
+        if (!lines.Any()) throw new ArgumentException("An order needs at least one line.", nameof(lines));
 
         var order = new Order { CustomerName = customerName, OrderDate = DateTime.UtcNow, Status = OrderStatus.Placed };
 
