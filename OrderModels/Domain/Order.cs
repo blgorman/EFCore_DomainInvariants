@@ -54,38 +54,30 @@ public class Order
 
     public void Process()
     {
-        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
-        throw new NotImplementedException();
-        //if (Status != OrderStatus.Placed)
-        //    throw new InvalidOperationException($"Cannot process an order in {Status} status.");
-        //Status = OrderStatus.Processing;
+        if (Status != OrderStatus.Placed)
+            throw new InvalidOperationException($"Cannot process an order in {Status} status.");
+        Status = OrderStatus.Processing;
     }
 
     public void Confirm()
     {
-        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
-        throw new NotImplementedException();
-        //if (Status != OrderStatus.Processing)
-        //    throw new InvalidOperationException($"Cannot confirm an order in {Status} status.");
-        //Status = OrderStatus.Confirmed;
+        if (Status != OrderStatus.Processing)
+            throw new InvalidOperationException($"Cannot confirm an order in {Status} status.");
+        Status = OrderStatus.Confirmed;
     }
 
     public void Ship()
     {
-        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
-        throw new NotImplementedException();
-        //if (Status != OrderStatus.Confirmed)
-        //    throw new InvalidOperationException($"Cannot ship an order in {Status} status.");
-        //Status = OrderStatus.Shipped;
+        if (Status != OrderStatus.Confirmed)
+            throw new InvalidOperationException($"Cannot ship an order in {Status} status.");
+        Status = OrderStatus.Shipped;
     }
 
     public void Cancel()
     {
-        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
-        throw new NotImplementedException();
-        //if (Status == OrderStatus.Shipped)
-        //    throw new InvalidOperationException("Cannot cancel an order that has shipped.");
-        //Status = OrderStatus.Cancelled;
+        if (Status == OrderStatus.Shipped)
+            throw new InvalidOperationException("Cannot cancel an order that has shipped.");
+        Status = OrderStatus.Cancelled;
     }
 
     private void RecalculateTotal()

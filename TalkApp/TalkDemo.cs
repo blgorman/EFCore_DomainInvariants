@@ -256,33 +256,31 @@ public static class TalkDemo
     // Solution: Process, Confirm, Ship, and Cancel are the only way to change Status, and each one checks the current Status first.
     private static void Solution3DomainMethodsGuardTransitions()
     {
-        //TODO: Talk Step 3 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //// Ship checks Status first, so a Placed order is rejected and stays Placed.
-        //var shippedOrder = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
-        //var shipWhilePlaced = Attempt(() => shippedOrder.Ship());
-        //
-        //// The only route to Shipped is Process, then Confirm, then Ship.
-        //shippedOrder.Process();
-        //shippedOrder.Confirm();
-        //shippedOrder.Ship();
-        //
-        //// A Cancelled order is rejected by the same guard in Ship.
-        //var cancelledOrder = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
-        //cancelledOrder.Cancel();
-        //var shipWhileCancelled = Attempt(() => cancelledOrder.Ship());
-        //
-        //Console.Write(OutputHelpers.BoxedArrayWithTitle(
-        //    "Good: Domain Methods Guard Every Transition",
-        //    new[]
-        //    {
-        //        $"Ship() while Placed:    {shipWhilePlaced}",
-        //        $"Ship() while Cancelled: {shipWhileCancelled}",
-        //        "",
-        //        "Process() -> Confirm() -> Ship()",
-        //        $"Status:  {shippedOrder.Status}"
-        //    }
-        //));
+        // Ship checks Status first, so a Placed order is rejected and stays Placed.
+        var shippedOrder = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        var shipWhilePlaced = Attempt(() => shippedOrder.Ship());
+        
+        // The only route to Shipped is Process, then Confirm, then Ship.
+        shippedOrder.Process();
+        shippedOrder.Confirm();
+        shippedOrder.Ship();
+        
+        // A Cancelled order is rejected by the same guard in Ship.
+        var cancelledOrder = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        cancelledOrder.Cancel();
+        var shipWhileCancelled = Attempt(() => cancelledOrder.Ship());
+        
+        Console.Write(OutputHelpers.BoxedArrayWithTitle(
+            "Good: Domain Methods Guard Every Transition",
+            new[]
+            {
+                $"Ship() while Placed:    {shipWhilePlaced}",
+                $"Ship() while Cancelled: {shipWhileCancelled}",
+                "",
+                "Process() -> Confirm() -> Ship()",
+                $"Status:  {shippedOrder.Status}"
+            }
+        ));
     }
 
     // Step 4: Total as a Money value object with OwnsOne, and the Money guard clauses
