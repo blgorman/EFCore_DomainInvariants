@@ -212,21 +212,19 @@ public static class TalkDemo
     // Solution: private setters mean only code inside the domain Order can change the five properties.
     private static void Solution2PrivateSettersLockTheOrder()
     {
-        //TODO: Talk Step 2 — Delete the next line and uncomment the code below it
-        throw new NotImplementedException();
-        //// Order.Place sets the properties from inside the Order class, which private setters allow.
-        //var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
-        //// Assigning from here would not compile, so reflection reports the visibility of each setter instead.
-        //var rows = new[] { "Id", "Status", "Total", "OrderDate", "CustomerName" }
-        //    .Select(propertyName => $"{propertyName,-13} setter: {(typeof(Domain.Order).GetProperty(propertyName)!.SetMethod!.IsPublic ? "public" : "private")}")
-        //    .ToList();
-        //rows.Add("");
-        //rows.Add($"Order.Place still sets them inside Order: {order.CustomerName}, {order.Status}");
-        //rows.Add("");
-        //rows.Add("order.OrderDate = ..., order.CustomerName = ..., and order.Total = ...");
-        //rows.Add("no longer compile outside the Order class.");
-        //
-        //Console.Write(OutputHelpers.BoxedArrayWithTitle("Good: Private Setters Lock the Order", rows.ToArray()));
+        // Order.Place sets the properties from inside the Order class, which private setters allow.
+        var order = Domain.Order.Place("Contoso", new[] { (2001, 2, Domain.Money.Create(19.99m, "USD")) });
+        // Assigning from here would not compile, so reflection reports the visibility of each setter instead.
+        var rows = new[] { "Id", "Status", "Total", "OrderDate", "CustomerName" }
+            .Select(propertyName => $"{propertyName,-13} setter: {(typeof(Domain.Order).GetProperty(propertyName)!.SetMethod!.IsPublic ? "public" : "private")}")
+            .ToList();
+        rows.Add("");
+        rows.Add($"Order.Place still sets them inside Order: {order.CustomerName}, {order.Status}");
+        rows.Add("");
+        rows.Add("order.OrderDate = ..., order.CustomerName = ..., and order.Total = ...");
+        rows.Add("no longer compile outside the Order class.");
+        
+        Console.Write(OutputHelpers.BoxedArrayWithTitle("Good: Private Setters Lock the Order", rows.ToArray()));
     }
 
     // Step 3: domain methods for the status transitions

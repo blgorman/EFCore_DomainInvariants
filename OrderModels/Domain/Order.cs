@@ -2,32 +2,20 @@ namespace OrderModels.Domain;
 
 public class Order
 {
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
-    public int Id { get; set; }
-    //public int Id { get; private set; }
+    public int Id { get; private set; }
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
-    public OrderStatus Status { get; set; }
-    //public OrderStatus Status { get; private set; }
+    public OrderStatus Status { get; private set; }
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
-    public decimal Total { get; set; }
-    //public decimal Total { get; private set; }
+    public decimal Total { get; private set; }
 
     //TODO: Talk Step 4 — Delete the Total property above and uncomment the line below it
     //public Money Total { get; private set; } = null!;
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
-    public DateTime OrderDate { get; set; }
-    //public DateTime OrderDate { get; private set; }
+    public DateTime OrderDate { get; private set; }
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
-    public string CustomerName { get; set; } = string.Empty;
-    //public string CustomerName { get; private set; } = string.Empty;
+    public string CustomerName { get; private set; } = string.Empty;
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
-    public List<OrderLine> Lines { get; set; } = new();
-    //public List<OrderLine> Lines { get; private set; } = new();
+    public List<OrderLine> Lines { get; private set; } = new();
 
     //TODO: Talk Step 5 — Delete the Lines property above and uncomment the two lines below it
     //private readonly List<OrderLine> _lines = new();
