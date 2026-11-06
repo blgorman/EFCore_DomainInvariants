@@ -13,11 +13,11 @@ public class OrderLine
         UnitPrice = null!;
     }
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
+    //TODO: Talk Step 5 — Delete the next line and uncomment the line below it
     public OrderLine(int productId, int quantity, Money unitPrice)
     //internal OrderLine(int productId, int quantity, Money unitPrice)
     {
-        //TODO: Talk Step 7 — Uncomment the two guard clauses below
+        //TODO: Talk Step 5 — Uncomment the two guard clauses below
         //if (productId <= 0) throw new ArgumentException("A line needs a valid product id.", nameof(productId));
         //if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
 

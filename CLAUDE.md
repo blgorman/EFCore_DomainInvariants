@@ -11,7 +11,7 @@ The demo app, plan, slides, and narration for Brian Gorman's 45-minute talk **Cr
 ## The Design (settled, do not re-open)
 
 - **Two backing models.** `OrderModels/Anemic` is the bad model and **never changes**. `OrderModels/Domain` is the good model; it starts as a copy of the bad model and is what changes on stage.
-- **Each model has its own `Order`, `OrderLine`, and `Money`.** The good model's `OrderLine` and `Money` change on stage (internal constructor at step 2, guards at step 7), so the bad model cannot share them. Brian questioned this on 2026-10-30 and kept the separate copies.
+- **Each model has its own `Order`, `OrderLine`, and `Money`.** The good model's `OrderLine` and `Money` change on stage (`Money` at step 4, `OrderLine` at step 5), so the bad model cannot share them. Brian questioned this on 2026-10-30 and kept the separate copies.
 - **One demo file: `TalkApp/TalkDemo.cs`.** It holds the menu and every call. No caller classes, no second demo file.
 - **Every menu option works from step 0.** Option N shows the problem on the bad model, then the solution on the good model. Before step N, the solution shows a "Not Yet Implemented" box.
 - **Nothing is typed on stage.** Every change is "delete one live line, uncomment the line(s) below it" or "uncomment the guard below". No signature is typed live; every member the demo calls exists at step 0 with its final signature.
@@ -19,7 +19,7 @@ The demo app, plan, slides, and narration for Brian Gorman's 45-minute talk **Cr
 ### The `//TODO: Talk Step N` pattern
 
 ```csharp
-//TODO: Talk Step 3 — Delete the next line and uncomment the line below it
+//TODO: Talk Step 2 — Delete the next line and uncomment the line below it
 public DateTime OrderDate { get; set; }
 //public DateTime OrderDate { get; private set; }
 ```
@@ -28,32 +28,21 @@ public DateTime OrderDate { get; set; }
 - The TODO states the exact count: "the line", "the two lines", "the three lines", "the five lines", or "the code" (everything commented until the block ends).
 - A line that changes twice carries the later TODO double-commented (`////TODO`) inside the earlier block, so uncommenting the earlier block produces a normal `//TODO`.
 - Each `TalkDemo` solution method starts with `throw new NotImplementedException();` under its TODO. The `TalkDemo` TODO is the last one applied for each step.
-- `Order.Place` works at step 0. Step 1 (course Clip 1) changes only `TalkDemo`; every later solution creates its order through `Place`.
+- `Order.Place` works at step 0, as in the course starter, and every solution creates its order through `Place`. Step 1 makes the constructor private and adds the `Place` guards.
 - `OrderStatus` and `HasConversion<string>()` on `Status` exist at step 0, as in the course starter. There is no enum step.
-- `TalkApp/Data/TalkDbContext.cs` changes in the step that creates the member it maps: step 2 (`HasField("_lines")`), step 5 (`OwnsOne` for `Total`). Solutions 2, 5, and 6 save and reload through EF Core so each mapping is exercised.
-- One concept per step, in the course's Module 2 order, and every step opens with its problem before the solution (slides and demo).
+- `TalkApp/Data/TalkDbContext.cs` changes in the step that creates the member it maps: step 4 (`OwnsOne` for `Total`), step 5 (`HasField("_lines")`). Solutions 1, 4, and 5 save and reload through EF Core so each mapping is exercised.
+- Each step solves one problem and finishes the code it touches, guards included, in the build order below. This is Brian's chosen order (2026-11-05), not the course's clip order. Every step opens with its problem before the solution (slides and demo).
 - Menu titles and slide titles name the concept and its solution, never the problem.
 
-### The seven steps (course Module 2 order)
+### The five steps (seven techniques, build order)
 
-| Step | Course | Technique | Menu option |
-|---|---|---|---|
-| 1 | Clip 1 | Factory method `Order.Place` (no domain edit) | Factory method: Order.Place |
-| 2 | Clip 2 | `_lines` backing field + `IReadOnlyCollection`, `AddLine`, internal `OrderLine` constructor + `HasField("_lines")` | Backing field and read-only Lines |
-| 3 | Clip 3 | Private setters | Private setters |
-| 4 | Clip 3 | `Process`/`Confirm`/`Ship`/`Cancel` | Domain methods control Status |
-| 5 | Clip 4 | `Total` becomes `Money` + `OwnsOne` | Total as a Money value object |
-| 6 | Clip 7 | Private `Order()` constructor, EF Core materialization, shadow FK shown | Private constructor and EF materialization |
-| 7 | Clip 8 | Guard clauses (`Place`, `AddLine`, `OrderLine`, `Money.Create`, `Money.Add`) | Guard clauses |
-
----|---|---|
-| 1 | `Status` becomes the `OrderStatus` enum + `HasConversion<string>()` | Status is a free string |
-| 2 | Private setters | Changing an order after it is placed |
-| 3 | `Process`/`Confirm`/`Ship`/`Cancel` | Shipping without confirming |
-| 4 | `_lines` backing field + `IReadOnlyCollection`, `AddLine`, internal `OrderLine` constructor + `HasField("_lines")` | Lines changed behind the order's back |
-| 5 | Private `Order()` constructor | An empty order |
-| 6 | Guard clauses (`Place`, `AddLine`, `OrderLine`) | Bad quantities and duplicate products |
-| 7 | `Total` becomes `Money` + `Money` guards + `OwnsOne` | Negative and mixed-currency totals |
+| Step | Techniques | Menu option |
+|---|---|---|
+| 1 | Private `Order()` constructor, factory method `Order.Place`, `Place` guards, EF Core materialization, shadow FK shown | Private constructor and Order.Place |
+| 2 | Private setters | Private setters |
+| 3 | `Process`/`Confirm`/`Ship`/`Cancel` | Domain methods control Status |
+| 4 | `Total` becomes `Money` + `OwnsOne`, `Money.Create` and `Money.Add` guards | Total as a Money value object |
+| 5 | `_lines` backing field + `IReadOnlyCollection`, `AddLine`, internal `OrderLine` constructor + `HasField("_lines")`, `AddLine` and `OrderLine` guards | Backing field and read-only Lines |
 
 ---
 
@@ -68,7 +57,7 @@ public DateTime OrderDate { get; set; }
 | `TalkApp/Program.cs` | `EnsureDeletedAsync` + `EnsureCreatedAsync` on every run. No migrations, ever. |
 | `ConsoleHelpers` | `OutputHelpers` / `InputHelpers` copied from the course. |
 | `tools/apply_step.py` | Applies one step's TODOs mechanically to a folder. Scratch copies only. |
-| `tools/verify_steps.sh` | Copies the solution to scratch, applies steps 1–7 in order, builds after each, runs every option at the end. |
+| `tools/verify_steps.sh` | Copies the solution to scratch, applies steps 1–5 in order, builds after each, runs every option at the end. |
 | `Talk/` | Slide plan and demo narration (see "Talk Documents"). |
 
 ---

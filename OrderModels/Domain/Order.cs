@@ -2,40 +2,40 @@ namespace OrderModels.Domain;
 
 public class Order
 {
-    //TODO: Talk Step 3 — Delete the next line and uncomment the line below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public int Id { get; set; }
     //public int Id { get; private set; }
 
-    //TODO: Talk Step 3 — Delete the next line and uncomment the line below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public OrderStatus Status { get; set; }
     //public OrderStatus Status { get; private set; }
 
-    //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the three lines below it
     public decimal Total { get; set; }
-    ////TODO: Talk Step 5 — Delete the next line and uncomment the line below it
+    ////TODO: Talk Step 4 — Delete the next line and uncomment the line below it
     //public decimal Total { get; private set; }
     ////public Money Total { get; private set; } = null!;
 
-    //TODO: Talk Step 3 — Delete the next line and uncomment the line below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public DateTime OrderDate { get; set; }
     //public DateTime OrderDate { get; private set; }
 
-    //TODO: Talk Step 3 — Delete the next line and uncomment the line below it
+    //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
     public string CustomerName { get; set; } = string.Empty;
     //public string CustomerName { get; private set; } = string.Empty;
 
-    //TODO: Talk Step 2 — Delete the next line and uncomment the two lines below it
+    //TODO: Talk Step 5 — Delete the next line and uncomment the two lines below it
     public List<OrderLine> Lines { get; set; } = new();
     //private readonly List<OrderLine> _lines = new();
     //public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
 
-    //TODO: Talk Step 6 — Delete the next line and uncomment the line below it
+    //TODO: Talk Step 1 — Delete the next line and uncomment the line below it
     public Order() { }
     //private Order() { }
 
     public static Order Place(string customerName, IEnumerable<(int productId, int quantity, Money unitPrice)> lines)
     {
-        //TODO: Talk Step 7 — Uncomment the two guard clauses below
+        //TODO: Talk Step 1 — Uncomment the two guard clauses below
         //if (string.IsNullOrWhiteSpace(customerName)) throw new ArgumentException("An order needs a customer name.", nameof(customerName));
         //if (!lines.Any()) throw new ArgumentException("An order needs at least one line.", nameof(lines));
 
@@ -43,7 +43,7 @@ public class Order
 
         foreach (var (productId, quantity, unitPrice) in lines)
         {
-            //TODO: Talk Step 2 — Delete the next line and uncomment the line below it
+            //TODO: Talk Step 5 — Delete the next line and uncomment the line below it
             order.Lines.Add(new OrderLine(productId, quantity, unitPrice));
             //order.AddLine(productId, quantity, unitPrice);
         }
@@ -54,10 +54,10 @@ public class Order
 
     public void AddLine(int productId, int quantity, Money unitPrice)
     {
-        //TODO: Talk Step 7 — Uncomment the duplicate-product guard clause below
+        //TODO: Talk Step 5 — Uncomment the duplicate-product guard clause below
         //if (_lines.Any(l => l.ProductId == productId)) throw new InvalidOperationException($"Product {productId} is already on this order.");
 
-        //TODO: Talk Step 2 — Delete the next line and uncomment the two lines below it
+        //TODO: Talk Step 5 — Delete the next line and uncomment the two lines below it
         throw new NotImplementedException();
         //_lines.Add(new OrderLine(productId, quantity, unitPrice));
         //RecalculateTotal();
@@ -65,7 +65,7 @@ public class Order
 
     public void Process()
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the three lines below it
+        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
         throw new NotImplementedException();
         //if (Status != OrderStatus.Placed)
         //    throw new InvalidOperationException($"Cannot process an order in {Status} status.");
@@ -74,7 +74,7 @@ public class Order
 
     public void Confirm()
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the three lines below it
+        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
         throw new NotImplementedException();
         //if (Status != OrderStatus.Processing)
         //    throw new InvalidOperationException($"Cannot confirm an order in {Status} status.");
@@ -83,7 +83,7 @@ public class Order
 
     public void Ship()
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the three lines below it
+        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
         throw new NotImplementedException();
         //if (Status != OrderStatus.Confirmed)
         //    throw new InvalidOperationException($"Cannot ship an order in {Status} status.");
@@ -92,7 +92,7 @@ public class Order
 
     public void Cancel()
     {
-        //TODO: Talk Step 4 — Delete the next line and uncomment the three lines below it
+        //TODO: Talk Step 3 — Delete the next line and uncomment the three lines below it
         throw new NotImplementedException();
         //if (Status == OrderStatus.Shipped)
         //    throw new InvalidOperationException("Cannot cancel an order that has shipped.");
@@ -101,7 +101,7 @@ public class Order
 
     private void RecalculateTotal()
     {
-        //TODO: Talk Step 5 — Delete the next line and uncomment the line below it
+        //TODO: Talk Step 4 — Delete the next line and uncomment the line below it
         Total = Lines.Sum(l => l.LineTotal.Amount);
         //Total = Lines.Select(l => l.LineTotal).Aggregate((sum, next) => sum.Add(next));
     }

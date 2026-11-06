@@ -27,7 +27,7 @@ You are helping Brian Gorman write or update the slide plan for his 45-minute ta
 
 ---
 
-## Segment: {timeline segment from TalkPlan.md, e.g. "9–13 min: Step 1, enum"}
+## Segment: {timeline segment from TalkPlan.md, e.g. "13–17 min: Step 2, private setters"}
 
 ## Slide N — {Slide Title}
 

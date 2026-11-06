@@ -39,7 +39,7 @@ public class TalkDbContext : DbContext
 
             order.Property(o => o.Status).HasConversion<string>().HasMaxLength(20);
 
-            //TODO: Talk Step 5 — Delete the next line and uncomment the five lines below it
+            //TODO: Talk Step 4 — Delete the next line and uncomment the five lines below it
             order.Property(o => o.Total).HasPrecision(18, 2);
             //order.OwnsOne(o => o.Total, money =>
             //{
@@ -49,7 +49,7 @@ public class TalkDbContext : DbContext
 
             order.HasMany(o => o.Lines).WithOne().HasForeignKey("OrderId");
 
-            //TODO: Talk Step 2 — Uncomment the line below
+            //TODO: Talk Step 5 — Uncomment the line below
             //order.Navigation(o => o.Lines).HasField("_lines").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 

@@ -8,7 +8,7 @@ Verify that the talk demo still works at every step after any change to `OrderMo
 bash tools/verify_steps.sh "<scratchpad directory>"
 ```
 
-The script copies the solution to `<scratchpad>/sim`, builds step 0, applies steps 1 to 7 in order with `tools/apply_step.py` (building after each), then runs every menu option at the final state. It never touches the real repo files.
+The script copies the solution to `<scratchpad>/sim`, builds step 0, applies steps 1 to 5 in order with `tools/apply_step.py` (building after each), then runs every menu option at the final state. It never touches the real repo files.
 
 ## What Passing Looks Like
 
@@ -17,7 +17,7 @@ The script copies the solution to `<scratchpad>/sim`, builds step 0, applies ste
 - `BOX OVERFLOW CHECK` prints nothing.
 - `SOLUTION BOXES` shows all seven "Good:" boxes with the results listed in `TalkPlan.md` section 5.
 
-Also run step 0 for real (`printf '1\n2\n3\n4\n5\n6\n7\n8\n' | dotnet run --project TalkApp -a x64`) and confirm each option prints its "Bad:" box followed by the "Not Yet Implemented" box.
+Also run step 0 for real (`printf '1\n2\n3\n4\n5\n6\n' | dotnet run --project TalkApp -a x64`) and confirm each option prints its "Bad:" box followed by the "Not Yet Implemented" box.
 
 ## Reporting
 

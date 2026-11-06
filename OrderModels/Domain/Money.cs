@@ -13,7 +13,7 @@ public record Money
 
     public static Money Create(decimal amount, string currency)
     {
-        //TODO: Talk Step 7 — Uncomment the two guard clauses below
+        //TODO: Talk Step 4 — Uncomment the two guard clauses below
         //if (amount < 0) throw new ArgumentException("Amount cannot be negative.", nameof(amount));
         //if (string.IsNullOrWhiteSpace(currency)) throw new ArgumentException("Currency cannot be empty.", nameof(currency));
 
@@ -22,7 +22,7 @@ public record Money
 
     public Money Add(Money other)
     {
-        //TODO: Talk Step 7 — Uncomment the currency guard clause below
+        //TODO: Talk Step 4 — Uncomment the currency guard clause below
         //if (other.Currency != Currency) throw new InvalidOperationException($"Cannot add {other.Currency} to {Currency}: currency mismatch.");
 
         return new Money(Amount + other.Amount, Currency);
