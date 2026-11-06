@@ -42,7 +42,7 @@ Hardening an anemic Order, one technique at a time
 
 **Layout:** Template agenda slide: photo on the left half, four bullets on the right.
 
-**Text on slide (verbatim, revealed one at a time):**
+**Text on slide (verbatim, shown all at once):**
 ```
 The anemic Order
 The desired Order invariants
@@ -51,7 +51,7 @@ The anemic Order next to the domain Order
 ```
 
 **Say:**
-"The talk opens with the anemic `Order`. [Bullet 1 appears] Next come the rules we want that `Order` to keep. [Bullet 2 appears] Each of the seven techniques starts with a problem on the anemic `Order` and fixes that problem on the domain `Order`. [Bullet 3 appears] The recap puts the two `Order` classes side by side. [Bullet 4 appears]"
+"The talk opens with the anemic `Order`. Next come the rules we want that `Order` to keep. Each of the seven techniques starts with a problem on the anemic `Order` and fixes that problem on the domain `Order`. The recap puts the two `Order` classes side by side."
 
 ---
 
@@ -148,22 +148,18 @@ Any caller can build any order, and EF Core saves it.
 
 ## Slide 8 — The Order Constructor Becomes Private
 
-**Layout:** Title Only layout. Two code panels stacked: the constructor from `Order.cs` after Step 1 on top, the line mapping from `TalkDbContext.cs` below, with two plain-text lines below the panels.
+**Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`, after Step 1: the constructor, with one plain-text line below the panel.
 
 **Text on slide (verbatim, shown all at once):**
 ```
 OrderModels/Domain/Order.cs, after Step 1
 private Order() { }
 
-TalkApp/Data/TalkDbContext.cs
-order.HasMany(o => o.Lines).WithOne().HasForeignKey("OrderId");
-
 EF Core rebuilds a reloaded order through the private constructor.
-OrderLine has no OrderId property: OrderId is a shadow foreign key.
 ```
 
 **Say:**
-"After step 1, the `Order` constructor is private, so `TalkApp` cannot call `new Order()`, and `Order.Place` is the only way to create an order. EF Core still calls the private constructor when it materializes an order from SQL Server. The same reload shows a shadow foreign key: `OrderLine` has no `OrderId` property, and `HasForeignKey("OrderId")` keeps the column in SQL Server only."
+"After step 1, the `Order` constructor is private, so `TalkApp` cannot call `new Order()`, and `Order.Place` is the only way to create an order. EF Core still calls the private constructor when it materializes an order from SQL Server."
 
 ---
 
@@ -232,7 +228,7 @@ No public Order(), and Order.Place rejects a bad order
 **Guidance:** Apply every `//TODO: Talk Step 1` (`OrderModels/Domain/Order.cs`, then `TalkApp/TalkDemo.cs` last). Run option 1, Private constructor and Order.Place.
 
 **Say:**
-"The anemic `Order` prints an empty `new Order()`, then reloads an order with an empty customer, a `Status` of Banana, a date of 1/1/0001, zero lines, and a `Total` of -99.99. After step 1, the domain `Order` has no public constructor. `Order.Place` creates the order for Contoso, and EF Core reloads it with a `Status` of `Placed`, today's date, 2 lines, and a `Total` of 44.98. A blank customer and an empty line list are rejected, and the line's shadow `OrderId` holds the order's `Id`."
+"The anemic `Order` prints an empty `new Order()`, then reloads an order with an empty customer, a `Status` of Banana, a date of 1/1/0001, zero lines, and a `Total` of -99.99. After step 1, the domain `Order` has no public constructor. `Order.Place` creates the order for Contoso, and EF Core reloads it with a `Status` of `Placed`, today's date, 2 lines, and a `Total` of 44.98. A blank customer and an empty line list are rejected."
 
 ---
 
@@ -304,9 +300,9 @@ Order.Place sets every property, and no outside caller can
 
 ## Slide 15 — Domain Methods: The Problem
 
-**Layout:** Title Only layout. Two code panels stacked: the anemic assignments on top, the domain assignment after Step 2 below, with one plain-text line below the panels.
+**Layout:** Title Only layout. Two code panels stacked: the anemic assignments on top, the domain assignment after Step 2 below, with one plain-text line below the panels. Three clicks: the anemic panel with its label, the domain panel with its label, then the plain-text line.
 
-**Text on slide (verbatim, shown all at once):**
+**Text on slide (verbatim, revealed one at a time):**
 ```
 OrderModels/Anemic
 order.Status = "Shipped";        // a Placed order, never confirmed
@@ -319,7 +315,7 @@ Nothing in the domain Order can move Status forward yet.
 ```
 
 **Say:**
-"The anemic `Order` ships a `Placed` order that was never confirmed, and ships a `Cancelled` order. After step 2, the private setter blocks the assignment on the domain `Order`. However, the domain `Order` has no method that moves `Status` from `Placed` to `Shipped` yet."
+"[Anemic panel appears] The anemic `Order` ships a `Placed` order that was never confirmed, and ships a `Cancelled` order. [Domain panel appears] After step 2, the private setter blocks the assignment on the domain `Order`. [Plain-text line appears] However, the domain `Order` has no method that moves `Status` from `Placed` to `Shipped` yet."
 
 ---
 
@@ -663,9 +659,9 @@ Step | Technique                  | What it prevents                            
 
 ## Slide 31 — The Anemic and Domain Orders
 
-**Layout:** Title Only layout. Two code panels stacked: `OrderModels/Anemic/Order.cs` on top, `OrderModels/Domain/Order.cs` after Step 5 below it (state only, methods omitted). Stacked rather than side by side so the code stays readable at 14pt or larger.
+**Layout:** Title Only layout. Two code panels stacked: `OrderModels/Anemic/Order.cs` on top, `OrderModels/Domain/Order.cs` after Step 5 below it (state only, methods omitted). Stacked rather than side by side so the code stays readable at 14pt or larger. Two clicks: the anemic panel with its label, then the domain panel with its label.
 
-**Text on slide (verbatim, shown all at once):**
+**Text on slide (verbatim, revealed one at a time):**
 ```
 OrderModels/Anemic/Order.cs
 public int Id { get; set; }
@@ -687,7 +683,7 @@ private Order() { }
 ```
 
 **Say:**
-"The anemic `Order` on top still accepts every invalid value from the seven problems. The domain `Order` below the anemic `Order` has private setters, a read-only `Lines` collection, and a private constructor, and `OrderModels/Domain` has no EF Core reference."
+"[Anemic panel appears] The anemic `Order` on top still accepts every invalid value from the seven problems. [Domain panel appears] The domain `Order` below the anemic `Order` has private setters, a read-only `Lines` collection, and a private constructor, and `OrderModels/Domain` has no EF Core reference."
 
 ---
 

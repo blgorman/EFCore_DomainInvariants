@@ -77,7 +77,7 @@ Each step solves one problem and finishes the code it touches, guards included. 
 
 | Option (menu title) | Problem (bad model) | `//TODO: Talk Step N` edits | Solution (good model) |
 |---|---|---|---|
-| 1. Private constructor and `Order.Place` | `new Order()` is empty; `new Order { Status = "Banana", Total = -99.99m }` has no customer, date, or lines, and EF Core saves and reloads it | The `Order` constructor becomes private; guards in `Place` (blank customer, no lines) | No public `Order()`; `Order.Place("Contoso", two lines)` reloads through the private constructor with total 44.98; a blank customer and no lines are rejected; the line's `OrderId` is a shadow foreign key |
+| 1. Private constructor and `Order.Place` | `new Order()` is empty; `new Order { Status = "Banana", Total = -99.99m }` has no customer, date, or lines, and EF Core saves and reloads it | The `Order` constructor becomes private; guards in `Place` (blank customer, no lines) | No public `Order()`; `Order.Place("Contoso", two lines)` reloads through the private constructor with total 44.98; a blank customer and no lines are rejected |
 | 2. Private setters | Caller rewrites `OrderDate`, `CustomerName`, and `Total` on a placed order | Private setters on `Id`, `Status`, `Total`, `OrderDate`, `CustomerName` | Every setter reports private; `Order.Place` still sets them inside `Order` |
 | 3. Domain methods control `Status` | `Status = "Shipped"` on a Placed order and on a Cancelled order | Bodies of `Process`, `Confirm`, `Ship`, `Cancel` | `Ship()` while Placed and while Cancelled is rejected; `Process` → `Confirm` → `Ship` reaches Shipped |
 | 4. `Total` as a `Money` value object | 19.99 USD + 25.00 EUR summed into a decimal `Total` of 44.99; `Money.Create(-42.50m)` and USD + EUR accepted | `Total` becomes `Money`; `RecalculateTotal` sums `Money`; `TalkDbContext`: `OwnsOne` for `Total`; guards in `Money.Create` (negative, blank currency) and `Money.Add` (currency mismatch) | `Total` is `59.97 USD`, reloads as `59.97 USD`; SQL Server holds `Total_Amount` and `Total_Currency`; a negative amount, USD + EUR, and USD and EUR lines are rejected |
@@ -86,8 +86,6 @@ Each step solves one problem and finishes the code it touches, guards included. 
 `HasField("_lines")` is not required when the field name follows the `_lines` convention (verified 2026-11-04: EF Core reloads the lines without it). The talk keeps it because the mapping must be explicit whenever the field name diverges from the convention.
 
 Step 4 includes the `OwnsOne` mapping for `Total` because the app can't build its EF Core model once `Total` is a `Money` without it. Each line gets its own `Money` instance: EF Core tracks an owned instance on one owner only, and a shared `Money` saves as NULL on the second line.
-
-The shadow foreign key is not a step. Solution 1 shows the one the talk already has: `OrderLine` has no `OrderId` property, and `TalkDbContext` maps it with `HasForeignKey("OrderId")`.
 
 ---
 

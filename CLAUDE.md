@@ -38,7 +38,7 @@ public DateTime OrderDate { get; set; }
 
 | Step | Techniques | Menu option |
 |---|---|---|
-| 1 | Private `Order()` constructor, factory method `Order.Place`, `Place` guards, EF Core materialization, shadow FK shown | Private constructor and Order.Place |
+| 1 | Private `Order()` constructor, factory method `Order.Place`, `Place` guards, EF Core materialization | Private constructor and Order.Place |
 | 2 | Private setters | Private setters |
 | 3 | `Process`/`Confirm`/`Ship`/`Cancel` | Domain methods control Status |
 | 4 | `Total` becomes `Money` + `OwnsOne`, `Money.Create` and `Money.Add` guards | Total as a Money value object |
@@ -79,6 +79,18 @@ public DateTime OrderDate { get; set; }
 | `Talk/DemoSteps.md` | Per step: what to delete/uncomment, menu option to run, narration | `/talk-demo-script` |
 
 Use `/talk-script-cleanup` to fix a flagged line in either file. Use `/talk-verify` after any code change.
+
+---
+
+## Slide Rules (Brian's decisions, do not regress)
+
+- **The talk is about the technology, never about how to run the demos.** No slide explains the `//TODO: Talk Step N` pattern, the repo layout, the two-model setup, or how the demo works. "Two Models, One Demo" and "The Talk Step Pattern" were removed on purpose and stay out.
+- **A demo slide has three lines:** `Demo`, the concept name, and one line stating what the technique achieves. No step number, option number, or menu text on the slide. All of that goes in the speaker notes.
+- **Every line on a slide must say something about the concept.** "Every problem runs, every solution waits" is the example of what never goes on a slide.
+- **Boxes appear on click.** A slide with several cards or code panels reveals them one click at a time. The invariant cards (slide 5) and the stacked code panels (slides 15 and 31) keep their click animations. The agenda (slide 3) is a quick list and is not animated.
+- **The live deck is `Talk/CreatingDomainInvariants.pptx`.** Every deck change starts from that file, never from `Template.pptx` or a `Talk/CreatingDomainInvariants.backup-*.pptx` file, and keeps the existing animations.
+- **After any deck change,** compare each slide's click count with the slide's plan in `Talk/SlidePlan.md`, and search the slide text for `Option`, `Talk Step`, and `Not Yet Implemented`.
+- **Never write to the deck while PowerPoint has `Talk/CreatingDomainInvariants.pptx` open.** Check for a running `POWERPNT` process and an exclusive file lock. `Talk/~$CreatingDomainInvariants.pptx` alone proves nothing, because that lock file can be left behind after PowerPoint closes.
 
 ---
 

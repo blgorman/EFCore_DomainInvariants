@@ -23,7 +23,7 @@ You are helping Brian Gorman write or update the slide plan for his 45-minute ta
 ```
 # Creating Domain Invariants — Slide Plan
 
-> {N} slides. Demo segments are marked with transition slides that name the menu option.
+> {N} slides. Each step runs in the same order: problem slide(s), technique slide(s), demo slide. Presenter guidance lives in the speaker notes, never on a slide.
 
 ---
 
@@ -46,7 +46,7 @@ You are helping Brian Gorman write or update the slide plan for his 45-minute ta
 
 - Group slides under `## Segment:` headers that match the `TalkPlan.md` timeline rows, so each segment's slide count can be checked against its minutes.
 - Reveal timing goes inline inside `**Say:**` (`[Bullet 1 appears]`), never as standalone tokens.
-- The last slide before each demo is a transition slide: title, one line of body text, and the menu option as a code-style line (e.g. `Option 2 — Shipping without confirming`).
+- Follow "Slide Rules" in `CLAUDE.md`. The demo slide has exactly three lines: `Demo`, the concept name, and one line stating what the technique achieves (e.g. `Order.Place sets every property, and no outside caller can`). Step numbers, option numbers, and TODO instructions go in the `**Guidance:**` line, which becomes speaker notes.
 - Slide titles name the concept, never an action phrase like "Let's Make the Change".
 - ASCII punctuation. No em dashes on a slide or in `**Say:**`.
 
