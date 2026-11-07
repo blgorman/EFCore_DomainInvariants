@@ -1,8 +1,8 @@
 # Creating Domain Invariants — Slide Plan
 
-> 33 slides. Five steps cover seven techniques in build order: close the way in, lock the properties, add the status behavior, fix `Money`, then fix the lines. Each guard clause goes in with the code it protects. Every step runs in the same order: a problem slide (the anemic code and what goes wrong), the technique slide(s), then a demo slide. Presenter guidance (which TODOs to apply, which option to run) lives in the speaker notes, never on a slide.
+> 40 slides. Five steps cover seven techniques in build order: close the way in, lock the properties, add the status behavior, fix `Money`, then fix the lines. Each guard clause goes in with the code it protects. Every step runs in the same order: a section header slide, a problem slide (the anemic code and what goes wrong), the technique slide(s), then a demo slide. Presenter guidance (which TODOs to apply, which option to run) lives in the speaker notes, never on a slide.
 > Built on `Template.pptx`. Code slides show the domain model after that step's TODOs are applied, with unapplied later-step TODO comments left out. Runtime values quoted in `**Say:**` come from a `tools/verify_steps.sh` run on 2026-11-06, plus all five options run after each step.
-> Titles name the concept and its solution. A problem slide is titled "<Concept>: The Problem".
+> Titles name the concept and its solution. A problem slide is titled "<Concept>: The Problem". A section header slide opens each topic and has a title and one line.
 > Speaker notes for each slide = the `**Guidance:**` line (demo slides only) followed by the `**Say:**` text.
 
 ---
@@ -55,7 +55,22 @@ The anemic Order next to the domain Order
 
 ---
 
-## Slide 4 — The Anemic Order
+## Slide 4 — The Anemic Order and Its Invariants
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+The Anemic Order and Its Invariants
+What the Order allows today, and the rules the Order should keep
+```
+
+**Say:**
+"The first topic is the anemic `Order` and the six rules that the `Order` should keep."
+
+---
+
+## Slide 5 — The Anemic Order
 
 **Layout:** Title Only layout. One dark code panel with the file path label above it. Code copied from `OrderModels/Anemic/Order.cs` (namespace line omitted).
 
@@ -79,7 +94,7 @@ public class Order
 
 ---
 
-## Slide 5 — The Desired Order Invariants
+## Slide 6 — The Desired Order Invariants
 
 **Layout:** Title Only layout. Six cards in a 3 x 2 grid, each with a number and one invariant. Each card fades in on click, in number order.
 
@@ -100,7 +115,22 @@ public class Order
 
 ## Segment: 5–13 min: Step 1, private constructor, factory method, and `Order.Place` guards
 
-## Slide 6 — Private Constructor: The Problem
+## Slide 7 — Private Constructor and Order.Place
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+Private Constructor and Order.Place
+Every new order goes through one guarded factory method
+```
+
+**Say:**
+"The next topic is how an order gets created. A private constructor and the `Order.Place` factory method put every new order through one guarded method."
+
+---
+
+## Slide 8 — Private Constructor: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the call and the printed results, with one plain-text line below the panel.
 
@@ -124,7 +154,7 @@ The public constructor lets any caller skip Order.Place.
 
 ---
 
-## Slide 7 — Creating an Order: The Problem
+## Slide 9 — Creating an Order: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the object initializer from `TalkDemo.cs` and the reloaded values as comments, with one plain-text line below the panel.
 
@@ -146,7 +176,7 @@ Any caller can build any order, and EF Core saves it.
 
 ---
 
-## Slide 8 — The Order Constructor Becomes Private
+## Slide 10 — The Order Constructor Becomes Private
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`, after Step 1: the constructor, with one plain-text line below the panel.
 
@@ -163,7 +193,7 @@ EF Core rebuilds a reloaded order through the private constructor.
 
 ---
 
-## Slide 9 — Creating Orders with Order.Place
+## Slide 11 — Creating Orders with Order.Place
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`: the `Place` method at Step 1. The `Place` signature and the object initializer are wrapped to fit the panel.
 
@@ -194,7 +224,7 @@ public static Order Place(string customerName,
 
 ---
 
-## Slide 10 — Guard Clauses in Order.Place
+## Slide 12 — Guard Clauses in Order.Place
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`, after Step 1: the guards from `Place`. Each guard is wrapped after the condition to fit the panel.
 
@@ -214,7 +244,7 @@ if (!lines.Any())
 
 ---
 
-## Slide 11 — Demo: Private Constructor and Order.Place
+## Slide 13 — Demo: Private Constructor and Order.Place
 
 **Layout:** Template demo slide.
 
@@ -234,7 +264,22 @@ No public Order(), and Order.Place rejects a bad order
 
 ## Segment: 13–17 min: Step 2, private setters
 
-## Slide 12 — Private Setters: The Problem
+## Slide 14 — Private Setters
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+Private Setters
+A placed order changes only through code inside the Order class
+```
+
+**Say:**
+"The next topic is who can change an order after `Order.Place` creates the order. Private setters keep those assignments inside the `Order` class."
+
+---
+
+## Slide 15 — Private Setters: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: three properties and the three assignments from `TalkDemo.cs`, with one plain-text line below the panel. The `Sum` call is wrapped to fit the panel.
 
@@ -258,7 +303,7 @@ Every setter is public, so any caller can change a placed order.
 
 ---
 
-## Slide 13 — Private Setters
+## Slide 16 — Private Setters
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`, after Step 2: the five property lines.
 
@@ -278,7 +323,7 @@ public string CustomerName { get; private set; } = string.Empty;
 
 ---
 
-## Slide 14 — Demo: Private Setters
+## Slide 17 — Demo: Private Setters
 
 **Layout:** Template demo slide.
 
@@ -298,7 +343,22 @@ Order.Place sets every property, and no outside caller can
 
 ## Segment: 17–22 min: Step 3, domain methods for Status
 
-## Slide 15 — Domain Methods: The Problem
+## Slide 18 — Domain Methods Control Status
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+Domain Methods Control Status
+Status moves only through methods that guard each transition
+```
+
+**Say:**
+"The next topic is how `Status` moves. The `Process`, `Confirm`, `Ship`, and `Cancel` methods each guard one transition."
+
+---
+
+## Slide 19 — Domain Methods: The Problem
 
 **Layout:** Title Only layout. Two code panels stacked: the anemic assignments on top, the domain assignment after Step 2 below, with one plain-text line below the panels. Three clicks: the anemic panel with its label, the domain panel with its label, then the plain-text line.
 
@@ -319,7 +379,7 @@ Nothing in the domain Order can move Status forward yet.
 
 ---
 
-## Slide 16 — Domain Methods Guard Transitions
+## Slide 20 — Domain Methods Guard Transitions
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`, after Step 3: `Ship()` and `Cancel()`.
 
@@ -347,7 +407,7 @@ public void Cancel()
 
 ---
 
-## Slide 17 — Demo: Domain Methods
+## Slide 21 — Demo: Domain Methods
 
 **Layout:** Template demo slide.
 
@@ -367,7 +427,22 @@ Ship() rejects a Placed order and a Cancelled order
 
 ## Segment: 22–30 min: Step 4, Money value object and its guards
 
-## Slide 18 — Value Object: The Problem
+## Slide 22 — Total as a Money Value Object
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+Total as a Money Value Object
+Every total carries an amount and a currency
+```
+
+**Say:**
+"The next topic is the order total. A `Money` value object stores an amount and a currency, and the `Money` guards reject invalid values."
+
+---
+
+## Slide 23 — Value Object: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the `Total` property, the sum from `TalkDemo.cs`, and the printed results as comments, with one plain-text line below the panel. The `Sum` call is wrapped to fit the panel.
 
@@ -390,7 +465,7 @@ A decimal Total has no currency.
 
 ---
 
-## Slide 19 — Money Guards: The Problem
+## Slide 24 — Money Guards: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the two `Money` calls from `TalkDemo.cs`, with one plain-text line below the panel.
 
@@ -409,7 +484,7 @@ Nothing checks the amount or the currency, so every value is accepted.
 
 ---
 
-## Slide 20 — Using a Value Object for the Total
+## Slide 25 — Using a Value Object for the Total
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Order.cs`, after Step 4: the `Total` property and `RecalculateTotal`.
 
@@ -432,7 +507,7 @@ private void RecalculateTotal()
 
 ---
 
-## Slide 21 — Mapping Money with OwnsOne
+## Slide 26 — Mapping Money with OwnsOne
 
 **Layout:** Title Only layout. Code panel labeled `TalkApp/Data/TalkDbContext.cs`, after Step 4, with one plain-text line below the panel. Each `Property` call is wrapped to fit the panel.
 
@@ -456,7 +531,7 @@ Total_Amount and Total_Currency are two columns on the DomainOrders table.
 
 ---
 
-## Slide 22 — Guard Clauses in Money
+## Slide 27 — Guard Clauses in Money
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain/Money.cs`, after Step 4. The `Money.Add` throw is wrapped to fit the panel.
 
@@ -481,7 +556,7 @@ if (other.Currency != Currency)
 
 ---
 
-## Slide 23 — Demo: Using a Value Object for the Total
+## Slide 28 — Demo: Using a Value Object for the Total
 
 **Layout:** Template demo slide.
 
@@ -501,7 +576,22 @@ Total as a Money Value Object
 
 ## Segment: 30–38 min: Step 5, backing field, read-only collection, and line guards
 
-## Slide 24 — Backing Field: The Problem
+## Slide 29 — Backing Field and Read-Only Lines
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+Backing Field and Read-Only Lines
+Every new line goes through AddLine, and Total stays correct
+```
+
+**Say:**
+"The next topic is the order lines. A private backing field and a read-only `Lines` collection put every new line through `AddLine`."
+
+---
+
+## Slide 30 — Backing Field: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the `Lines` property, the two calls from `TalkDemo.cs`, and the printed results as comments, with one plain-text line below the panel.
 
@@ -525,7 +615,7 @@ Any caller can change Lines, and nothing recalculates Total.
 
 ---
 
-## Slide 25 — A Private Backing Field
+## Slide 31 — A Private Backing Field
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain`, after Step 5: `_lines`, `Lines`, `AddLine`, and `RecalculateTotal` from `Order.cs`, and the constructor line from `OrderLine.cs`.
 
@@ -558,7 +648,7 @@ internal OrderLine(int productId, int quantity, Money unitPrice)
 
 ---
 
-## Slide 26 — Mapping the Backing Field
+## Slide 32 — Mapping the Backing Field
 
 **Layout:** Title Only layout. Code panel labeled `TalkApp/Data/TalkDbContext.cs`, after Step 5, with two plain-text lines below the panel.
 
@@ -579,7 +669,7 @@ Any other field name requires HasField.
 
 ---
 
-## Slide 27 — Line Guards: The Problem
+## Slide 33 — Line Guards: The Problem
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Anemic`: the three lines from `TalkDemo.cs`, with one plain-text line below the panel.
 
@@ -599,7 +689,7 @@ Nothing checks the lines, so every line is accepted.
 
 ---
 
-## Slide 28 — Guard Clauses on the Lines
+## Slide 34 — Guard Clauses on the Lines
 
 **Layout:** Title Only layout. Code panel labeled `OrderModels/Domain`, after Step 5: the guards from `AddLine` and the `OrderLine` constructor. Each guard is wrapped after the condition to fit the panel.
 
@@ -623,7 +713,7 @@ if (quantity <= 0)
 
 ---
 
-## Slide 29 — Demo: Backing Field
+## Slide 35 — Demo: Backing Field
 
 **Layout:** Template demo slide.
 
@@ -643,7 +733,22 @@ AddLine keeps Total in step, and EF Core reloads both lines
 
 ## Segment: 38–45 min: Recap + Q&A
 
-## Slide 30 — Seven Techniques, Seven Rules
+## Slide 36 — Seven Techniques in Review
+
+**Layout:** Template Section Header layout. Title and subtitle only.
+
+**Text on slide (verbatim, shown all at once):**
+```
+Seven Techniques in Review
+What each technique prevents, and both Order classes compared
+```
+
+**Say:**
+"The last topic is a recap. A table lists what each technique prevents, and then the anemic `Order` and the domain `Order` appear together."
+
+---
+
+## Slide 37 — Seven Techniques, Seven Rules
 
 **Layout:** Title Only layout. Seven-row table: step, technique, what the technique prevents, and the code that enforces it.
 
@@ -664,7 +769,7 @@ Step | Technique                  | What it prevents                            
 
 ---
 
-## Slide 31 — The Anemic and Domain Orders
+## Slide 38 — The Anemic and Domain Orders
 
 **Layout:** Title Only layout. Two code panels stacked: `OrderModels/Anemic/Order.cs` on top, `OrderModels/Domain/Order.cs` after Step 5 below it (state only, methods omitted). Stacked rather than side by side so the code stays readable at 14pt or larger. Two clicks: the anemic panel with its label, then the domain panel with its label.
 
@@ -694,7 +799,7 @@ private Order() { }
 
 ---
 
-## Slide 32 — Questions?
+## Slide 39 — Questions?
 
 **Layout:** Template questions slide, unchanged.
 
@@ -708,7 +813,7 @@ private Order() { }
 
 ---
 
-## Slide 33 — Conclusion
+## Slide 40 — Conclusion
 
 **Layout:** Template conclusion slide, unchanged, with its existing speaker note.
 
